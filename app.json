@@ -1,0 +1,31 @@
+{
+  "id": "8b5e999f-4826-4bca-b3fb-1d0c4651d42a",
+  "name": "IMS365",
+  "publisher": "TechBIZInfotech",
+  "version": "1.0.0.519",
+  "brief": "",
+  "description": "",
+  "privacyStatement": "",
+  "EULA": "",
+  "help": "",
+  "url": "",
+  "logo": "",  
+  "dependencies": [
+    
+  ],
+  "screenshots": [],
+  "platform": "1.0.0.0",
+  "application": "24.0.0.0",
+  "idRanges": [
+    {
+      "from": 50050,
+      "to": 50300
+    }
+  ],
+  "resourceExposurePolicy": {
+    "allowDebugging": true,
+    "allowDownloadingSource": false,
+    "includeSourceInSymbolFile": false
+  },
+  "runtime": "13.0"
+}

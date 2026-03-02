@@ -1,0 +1,439 @@
+page 50174 "IMS VAT Entries Group by Doc"
+{
+
+    Caption = 'IMS VAT Entries Group by Document';
+    PageType = List;
+    SourceTable = "VAT Entry";
+    SourceTableTemporary = true;
+    UsageCategory = History;
+    ApplicationArea = Basic, Suite;
+    DeleteAllowed = false;
+    InsertAllowed = false;
+    Permissions = TableData "VAT Entry" = m;
+    layout
+    {
+        area(content)
+        {
+            repeater(Control1)
+            {
+                ShowCaption = false;
+                field("Entry No."; Rec."Entry No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the number of the entry, as assigned from the specified number series when the entry was created.';
+                }
+                field("Gen. Bus. Posting Group"; Rec."Gen. Bus. Posting Group")
+                {
+                    ApplicationArea = Suite;
+                    ToolTip = 'Specifies the vendor''s or customer''s trade type to link transactions made for this business partner with the appropriate general ledger account according to the general posting setup.';
+                    Visible = false;
+                }
+                field("Gen. Prod. Posting Group"; Rec."Gen. Prod. Posting Group")
+                {
+                    ApplicationArea = Suite;
+                    ToolTip = 'Specifies the item''s product type to link transactions made for this item with the appropriate general ledger account according to the general posting setup.';
+                    Visible = false;
+                }
+                field("VAT Bus. Posting Group"; Rec."VAT Bus. Posting Group")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the VAT specification of the involved customer or vendor to link transactions made for this record with the appropriate general ledger account according to the VAT posting setup.';
+                }
+                field("VAT Prod. Posting Group"; Rec."VAT Prod. Posting Group")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the VAT specification of the involved item or resource to link transactions made for this record with the appropriate general ledger account according to the VAT posting setup.';
+                }
+                field("Posting Date"; Rec."Posting Date")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the VAT entry''s posting date.';
+                }
+                field("Document Date"; Rec."Document Date")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the date when the related document was created.';
+                    //Visible = false;
+                }
+                field("Document No."; Rec."Document No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the document number on the VAT entry.';
+                }
+                field("External Document No."; Rec."External Document No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the External document number on the VAT entry.';
+                }
+
+                field("Document Type"; Rec."Document Type")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the document type that the VAT entry belongs to.';
+                }
+                field(Type; Rec.Type)
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the type of the VAT entry.';
+                }
+                field(Base; Rec.Base)
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the amount that the VAT amount (the amount shown in the Amount field) is calculated from.';
+                }
+                field(Amount; Rec.Amount)
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the amount of the VAT entry in LCY.';
+                }
+                field("Unrealized Amount"; Rec."Unrealized Amount")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the unrealized VAT amount for this line if you use unrealized VAT.';
+                    Visible = IsUnrealizedVATEnabled;
+                }
+                field("Unrealized Base"; Rec."Unrealized Base")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the unrealized base amount if you use unrealized VAT.';
+                    Visible = IsUnrealizedVATEnabled;
+                }
+                field("Remaining Unrealized Amount"; Rec."Remaining Unrealized Amount")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the amount that remains unrealized in the VAT entry.';
+                    Visible = IsUnrealizedVATEnabled;
+                }
+                field("Remaining Unrealized Base"; Rec."Remaining Unrealized Base")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the amount of base that remains unrealized in the VAT entry.';
+                    Visible = IsUnrealizedVATEnabled;
+                }
+                field("VAT Difference"; Rec."VAT Difference")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the difference between the calculated VAT amount and a VAT amount that you have entered manually.';
+                    Visible = false;
+                }
+                field("Additional-Currency Base"; Rec."Additional-Currency Base")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the amount that the VAT amount is calculated from if you post in an additional reporting currency.';
+                    Visible = false;
+                }
+                field("Additional-Currency Amount"; Rec."Additional-Currency Amount")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the amount of the VAT entry. The amount is in the additional reporting currency.';
+                    Visible = false;
+                }
+                field("Add.-Curr. VAT Difference"; Rec."Add.-Curr. VAT Difference")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies, in the additional reporting currency, the VAT difference that arises when you make a correction to a VAT amount on a sales or purchase document.';
+                    Visible = false;
+                }
+                field("VAT Calculation Type"; Rec."VAT Calculation Type")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies how VAT will be calculated for purchases or sales of items with this particular combination of VAT business posting group and VAT product posting group.';
+                }
+                field("Bill-to/Pay-to No."; Rec."Bill-to/Pay-to No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the number of the bill-to customer or pay-to vendor that the entry is linked to.';
+                }
+                field("Cust/Vend Name"; Rec."Cust/Vend Name")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the name of the bill-to customer or pay-to vendor that the entry is linked to.';
+                }
+                field("CU Number"; Rec."CU Number")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies CU Number that the entry is linked to.';
+                }
+
+                field(Description; Rec.Description)
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies Description that the entry is linked to.';
+                }
+                field("VAT Registration No."; Rec."VAT Registration No.")
+                {
+                    Caption = 'KRA PIN No.';
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the VAT registration number of the customer or vendor that the entry is linked to.';
+                }
+                field("Ship-to/Order Address Code"; Rec."Ship-to/Order Address Code")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the address code of the ship-to customer or order-from vendor that the entry is linked to.';
+                    Visible = false;
+                }
+                field("Country/Region Code"; Rec."Country/Region Code")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the country/region of the address.';
+                }
+                field("EU 3-Party Trade"; Rec."EU 3-Party Trade")
+                {
+                    ApplicationArea = Suite;
+                    ToolTip = 'Specifies if the transaction is related to trade with a third party within the EU.';
+                }
+                field(Closed; Rec.Closed)
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies whether the VAT entry has been closed by the Calc. and Post VAT Settlement batch job.';
+                }
+                field("Closed by Entry No."; Rec."Closed by Entry No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the number of the VAT entry that has closed the entry, if the VAT entry was closed with the Calc. and Post VAT Settlement batch job.';
+                }
+                field("Internal Ref. No."; Rec."Internal Ref. No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the internal reference number for the line.';
+                }
+                field(Reversed; Rec.Reversed)
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies if the entry has been part of a reverse transaction.';
+                    Visible = false;
+                }
+                field("Reversed by Entry No."; Rec."Reversed by Entry No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the number of the correcting entry. If the field Specifies a number, the entry cannot be reversed again.';
+                    Visible = false;
+                }
+                field("Reversed Entry No."; Rec."Reversed Entry No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the number of the original entry that was undone by the reverse transaction.';
+                    Visible = false;
+                }
+                field("EU Service"; Rec."EU Service")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies if this VAT entry is to be reported as a service in the periodic VAT reports.';
+                    Visible = false;
+                }
+            }
+        }
+        area(factboxes)
+        {
+            part(IncomingDocAttachFactBox; "Incoming Doc. Attach. FactBox")
+            {
+                ApplicationArea = Basic, Suite;
+                ShowFilter = false;
+                SubPageLink = "Posting Date" = field("Posting Date"), "Document No." = field("Document No.");
+            }
+            part(GLEntriesPart; "G/L Entries Part")
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Related G/L Entries';
+                ShowFilter = false;
+                SubPageLink = "Posting Date" = field("Posting Date"), "Document No." = field("Document No.");
+            }
+            systempart(Control1900383207; Links)
+            {
+                ApplicationArea = RecordLinks;
+                Visible = false;
+            }
+            systempart(Control1905767507; Notes)
+            {
+                ApplicationArea = Notes;
+                Visible = false;
+            }
+        }
+    }
+
+    actions
+    {
+        area(processing)
+        {
+            action("&Navigate")
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Find entries...';
+                Image = Navigate;
+                Promoted = true;
+                PromotedCategory = Process;
+                ShortCutKey = 'Ctrl+Alt+Q';
+                ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
+
+                trigger OnAction()
+                var
+                    IsHandled: Boolean;
+                begin
+                    IsHandled := false;
+                    OnBeforeActionNavigate(Rec, IsHandled);
+                    if IsHandled then
+                        exit;
+
+                    Navigate.SetDoc(Rec."Posting Date", Rec."Document No.");
+                    Navigate.Run();
+                end;
+            }
+            action(SetGLAccountNo)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Set G/L Account No.';
+                Image = AdjustEntries;
+                ToolTip = 'Fill the G/L Account No. field in VAT entries that are linked to G/L entries.';
+
+                trigger OnAction()
+                var
+                    VATEntry: Record "VAT Entry";
+                    Window: Dialog;
+                    BucketIndex: Integer;
+                    SizeOfBucket: Integer;
+                    LastEntryNo: Integer;
+                    NoOfBuckets: Integer;
+                begin
+                    SizeOfBucket := 1000;
+
+                    if not VATEntry.FindLast() then
+                        exit;
+
+                    Window.Open(AdjustTitleMsg + ProgressMsg);
+
+                    LastEntryNo := VATEntry."Entry No.";
+                    NoOfBuckets := LastEntryNo DIV SizeOfBucket + 1;
+
+                    for BucketIndex := 1 to NoOfBuckets do begin
+                        VATEntry.SetRange("Entry No.", (BucketIndex - 1) * SizeOfBucket, BucketIndex * SizeOfBucket);
+                        VATEntry.SetGLAccountNo(false);
+                        Commit();
+                        Window.Update(2, Round(BucketIndex / NoOfBuckets * 10000, 1));
+                    end;
+
+                    Window.Close();
+                end;
+            }
+
+        }
+    }
+
+    trigger OnAfterGetCurrRecord()
+    var
+        IncomingDocument: Record "Incoming Document";
+
+    begin
+        HasIncomingDocument := IncomingDocument.PostedDocExists(Rec."Document No.", Rec."Posting Date");
+        UpdateCustVendName();
+    end;
+
+    trigger OnModifyRecord(): Boolean
+    begin
+        CODEUNIT.Run(CODEUNIT::"VAT Entry - Edit", Rec);
+        exit(false);
+    end;
+
+    trigger OnAfterGetRecord()
+    var
+        myInt: Integer;
+    begin
+        UpdateCustVendName();
+    end;
+
+    trigger OnOpenPage()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+    begin
+        if GeneralLedgerSetup.Get then
+            IsUnrealizedVATEnabled := GeneralLedgerSetup."Unrealized VAT" or GeneralLedgerSetup."Prepayment Unrealized VAT";
+        UpdateCustVendName();
+        //SetDocNo();
+
+    end;
+
+    trigger OnInit()
+    begin
+        SetDocNo();
+    end;
+
+    var
+        Navigate: Page Navigate;
+        HasIncomingDocument: Boolean;
+        IsUnrealizedVATEnabled: Boolean;
+        AdjustTitleMsg: Label 'Adjust G/L account number in VAT entries.\';
+        ProgressMsg: Label 'Processed: @2@@@@@@@@@@@@@@@@@\';
+        g_DocNo: Code[20];
+        VATEntry: Record "VAT Entry";
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeActionNavigate(var VATEntry: Record "VAT Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    local procedure UpdateCustVendName()
+    var
+        RecCust: Record customer;
+        RecVend: Record Vendor;
+        PurchInvHead: Record "Purch. Inv. Header";
+    begin
+        IF rec.Type = rec.type::Sale then begin
+            if RecCust.get(Rec."Bill-to/Pay-to No.") then
+                Rec."Cust/Vend Name" := RecCust.Name
+            else
+                rec."Cust/Vend Name" := '';
+            rec.Modify();
+        end;
+        IF rec.Type = rec.type::Purchase then begin
+            if RecVend.get(Rec."Bill-to/Pay-to No.") then
+                Rec."Cust/Vend Name" := RecVend.Name
+            else
+                rec."Cust/Vend Name" := '';
+            rec.Modify();
+            if Rec."Document Type" = Rec."Document Type"::Invoice then begin
+                if PurchInvHead.Get(Rec."Document No.") then
+                    Rec."CU Number" := PurchInvHead."CU Number"
+                else
+                    Rec."CU Number" := '';
+            end;
+        end;
+    end;
+
+    procedure SetDocNo()
+
+    begin
+        Rec.Reset;
+        Rec.DeleteAll();
+        VATEntry.Reset();
+        IF VATEntry.FindSet() THEN
+            REPEAT
+                Rec.Reset();
+                rec.SetCurrentKey("Document No.", "Posting Date");
+                rec.SetAscending("Document No.", false);
+                Rec.SetRange("Document No.", VATEntry."Document No.");
+                IF Rec.FindSet() THEN BEGIN
+                    Rec.Base += VATEntry.Base;
+                    Rec.Amount += VATEntry.Amount;
+                    Rec.MODIFY;
+                END ELSE BEGIN
+                    Rec.INIT;
+                    rec."Entry No." := VATEntry."Entry No.";
+                    Rec."Document No." := VATEntry."Document No.";
+                    rec."Document Date" := VATEntry."Document Date";
+                    rec."External Document No." := VATEntry."External Document No.";
+                    Rec."Posting Date" := VATEntry."Posting Date";
+                    Rec."Document Type" := VATEntry."Document Type";
+                    rec.Type := VATEntry.Type;
+                    Rec."Bill-to/Pay-to No." := VATEntry."Bill-to/Pay-to No.";
+                    Rec."Cust/Vend Name" := VATEntry."Cust/Vend Name";
+                    rec."VAT Registration No." := VATEntry."VAT Registration No.";
+                    Rec."VAT Bus. Posting Group" := VATEntry."VAT Bus. Posting Group";
+                    rec."VAT Prod. Posting Group" := VATEntry."VAT Prod. Posting Group";
+                    Rec.Base := VATEntry.Base;
+                    Rec.Amount := VATEntry.Amount;
+                    Rec.INSERT;
+                END;
+            UNTIL VATEntry.NEXT = 0;
+        rec.reset;
+    end;
+}
+
