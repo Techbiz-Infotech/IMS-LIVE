@@ -11,7 +11,7 @@ Table 50105 "Manifest Header"
             trigger Onvalidate()
             var
                 ImsSetup: Record "IMS Setup";
-                NoSeriesMgt: Codeunit NoSeriesManagement;
+                NoSeriesMgt: Codeunit "No. Series";
             begin
                 rec."Date File Opened" := WorkDate();
                 if "Job File No." <> xRec."Job File No." then begin
@@ -141,7 +141,7 @@ Table 50105 "Manifest Header"
     trigger OnInsert()
     var
         ImsSetup: Record "IMS Setup";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeriesMgt: Codeunit "No. Series";
     begin
         rec."Date File Opened" := TODAY();
         Rec."User ID" := UserId;
@@ -149,7 +149,11 @@ Table 50105 "Manifest Header"
         if "Job File No." = '' then begin
             ImsSetup.get;
             ImsSetup.TestField("Job File Nos");
-            NoSeriesMgt.InitSeries(ImsSetup."Job File Nos", xRec."Job File No.", 0D, "Job File No.", "No.Series");
+            //NoSeriesMgt.InitSeries(ImsSetup."Job File Nos", xRec."Job File No.", 0D, "Job File No.", "No.Series");
+            "No.Series" := ImsSetup."Job File Nos";
+            if NoSeriesMgt.AreRelated(ImsSetup."Job File Nos", xRec."No.Series") then
+                "No.Series" := xRec."No.Series";
+            "Job File No." := NoSeriesMgt.GetNextNo("No.Series");
         end;
     end;
 
@@ -178,14 +182,14 @@ Table 50105 "Manifest Header"
     var
         ManiRec: Record "Manifest Header";
         ImsSetup: Record "IMS Setup";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeriesMgt: Codeunit "No. Series";
 
     begin
         ManiRec := Rec;
         ImsSetup.Get;
         ImsSetup.TestField("Job File Nos");
-        if NoSeriesMgt.SelectSeries(ImsSetup."Job File Nos", ManifestRec."No.Series", "No.Series") then begin
-            NoSeriesMgt.SetSeries("Job File No.");
+        if NoSeriesMgt.LookupRelatedNoSeries(ImsSetup."Job File Nos", ManifestRec."No.Series", "No.Series") then begin
+            NoSeriesMgt.GetNextNo("Job File No.");
             Rec := ManiRec;
             exit(true);
         end;

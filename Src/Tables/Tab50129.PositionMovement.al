@@ -13,7 +13,7 @@ table 50129 "Position Movement"
             var
 
                 ImsSetup: Record "IMS Setup";
-                NoSeriesMgmt: Codeunit NoSeriesManagement;
+                NoSeriesMgmt: Codeunit "No. Series";
             begin
                 if "Position Movement No." <> xRec."Position Movement No." then begin
                     ImsSetup.Get;
@@ -132,13 +132,17 @@ table 50129 "Position Movement"
     trigger OnInsert()
     var
         ImsSetup: Record "IMS Setup";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeriesMgt: Codeunit "No. Series";
     begin
         Rec."User ID" := UserId;
         if "Position Movement No." = '' THEN begin
             ImsSetup.Get;
             ImsSetup.TestField("Postion Movement Nos");
-            NoSeriesMgt.InitSeries(ImsSetup."Postion Movement Nos", xRec."Position Movement No.", 0D, "Position Movement No.", "No.Series");
+            //NoSeriesMgt.InitSeries(ImsSetup."Postion Movement Nos", xRec."Position Movement No.", 0D, "Position Movement No.", "No.Series");
+            "No.Series" := ImsSetup."Postion Movement Nos";
+            if NoSeriesMgt.AreRelated(ImsSetup."Postion Movement Nos", xRec."No.Series") then
+                "No.Series" := xRec."No.Series";
+            "Position Movement No." := NoSeriesMgt.GetNextNo("No.Series");
         end;
         Rec."Movement Date" := today();
         rec."Movement Time" := Time;
@@ -150,14 +154,14 @@ table 50129 "Position Movement"
     var
         PosRec1: Record "Position Movement";
         ImsSetup: Record "IMS Setup";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeriesMgt: Codeunit "No. Series";
 
     begin
         PosRec1 := Rec;
         ImsSetup.GET;
         ImsSetup.TESTFIELD(ImsSetup."Postion Movement Nos");
-        IF NoSeriesMgt.SelectSeries(ImsSetup."Postion Movement Nos", PosRec."No.Series", "No.Series") THEN BEGIN
-            NoSeriesMgt.SetSeries("Position Movement No.");
+        IF NoSeriesMgt.LookupRelatedNoSeries(ImsSetup."Postion Movement Nos", PosRec."No.Series", "No.Series") THEN BEGIN
+            NoSeriesMgt.GetNextNo("Position Movement No.");
             Rec := PosRec1;
             EXIT(TRUE);
         END;

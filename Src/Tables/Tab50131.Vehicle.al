@@ -14,7 +14,7 @@ table 50131 Vehicle
             var
 
                 ImsSetup: Record "IMS Setup";
-                NoSeriesMgmt: Codeunit NoSeriesManagement;
+                NoSeriesMgmt: Codeunit "No. Series";
             begin
                 if "Vehicle No." <> xRec."Vehicle No." then begin
                     ImsSetup.Get;
@@ -77,13 +77,17 @@ table 50131 Vehicle
     var
         //myInt: Integer;
         Imssetup: Record "IMS Setup";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeriesMgt: Codeunit "No. Series";
     begin
         Rec."User ID" := UserId;
         if "Vehicle No." = '' THEN begin
             Imssetup.Get;
             Imssetup.TestField("Vehicle Nos");
-            NoSeriesMgt.InitSeries(Imssetup."Vehicle Nos", xRec."Vehicle No.", 0D, "Vehicle No.", "No.Series");
+            //NoSeriesMgt.InitSeries(Imssetup."Vehicle Nos", xRec."Vehicle No.", 0D, "Vehicle No.", "No.Series");
+            "No.Series" := Imssetup."Vehicle Nos";
+            if NoSeriesMgt.AreRelated(Imssetup."Vehicle Nos", xRec."No.Series") then
+                "No.Series" := xRec."No.Series";
+            "Vehicle No." := NoSeriesMgt.GetNextNo("No.Series");
         end;
 
     end;
@@ -93,13 +97,13 @@ table 50131 Vehicle
     var
         vehicleRec1: Record Vehicle;
         ImsSetup: Record "IMS Setup";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeriesMgt: Codeunit "No. Series";
     begin
         VehicleRec1 := Rec;
         ImsSetup.GET;
         ImsSetup.TESTFIELD(ImsSetup."Vehicle Nos");
-        IF NoSeriesMgt.SelectSeries(ImsSetup."Vehicle Nos", VehRec."No.Series", "No.Series") THEN BEGIN
-            NoSeriesMgt.SetSeries("Vehicle No.");
+        IF NoSeriesMgt.LookupRelatedNoSeries(ImsSetup."Vehicle Nos", VehRec."No.Series", "No.Series") THEN BEGIN
+            NoSeriesMgt.GetNextNo("Vehicle No.");
             Rec := VehicleRec1;
             EXIT(TRUE);
         END;

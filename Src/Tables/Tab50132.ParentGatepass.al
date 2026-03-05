@@ -12,7 +12,7 @@ table 50132 "Parent Gatepass"
             trigger OnValidate()
             var
                 ImsSetup: Record "IMS Setup";
-                NoSeriesMgmt: Codeunit NoSeriesManagement;
+                NoSeriesMgmt: Codeunit "No. Series";
             begin
                 if "Parent Gatepass No." <> xRec."Parent GatePass No." then begin
                     ImsSetup.Get;
@@ -272,13 +272,17 @@ table 50132 "Parent Gatepass"
     trigger OnInsert()
     var
         ImsSetup: Record "IMS Setup";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeriesMgt: Codeunit "No. Series";
     begin
         Rec."User ID" := UserId;
         if "Parent GatePass No." = '' THEN begin
             ImsSetup.Get;
             ImsSetup.TestField("Parent Gatepass Nos");
-            NoSeriesMgt.InitSeries(ImsSetup."Parent Gatepass Nos", xRec."Parent GatePass No.", 0D, "Parent GatePass No.", "No.Series");
+            //NoSeriesMgt.InitSeries(ImsSetup."Parent Gatepass Nos", xRec."Parent GatePass No.", 0D, "Parent GatePass No.", "No.Series");
+            "No.Series" := ImsSetup."Parent Gatepass Nos";
+            if NoSeriesMgt.AreRelated(ImsSetup."Parent Gatepass Nos", xRec."No.Series") then
+                "No.Series" := xRec."No.Series";
+            "Parent GatePass No." := NoSeriesMgt.GetNextNo("No.Series");
         end;
         rec."Activity Date" := Today();
         rec."Activity Time" := Time;
@@ -289,14 +293,14 @@ table 50132 "Parent Gatepass"
     var
         GatePassRec1: Record "Parent Gatepass";
         ImsSetup: Record "IMS Setup";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeriesMgt: Codeunit "No. Series";
 
     begin
         GatePassRec1 := Rec;
         ImsSetup.GET;
         ImsSetup.TESTFIELD(ImsSetup."Parent Gatepass Nos");
-        IF NoSeriesMgt.SelectSeries(ImsSetup."Parent Gatepass Nos", GatePassRec."No.Series", "No.Series") THEN BEGIN
-            NoSeriesMgt.SetSeries("Parent Gatepass No.");
+        IF NoSeriesMgt.LookupRelatedNoSeries(ImsSetup."Parent Gatepass Nos", GatePassRec."No.Series", "No.Series") THEN BEGIN
+            NoSeriesMgt.GetNextNo("Parent Gatepass No.");
             Rec := GatePassRec1;
             EXIT(TRUE);
         END;

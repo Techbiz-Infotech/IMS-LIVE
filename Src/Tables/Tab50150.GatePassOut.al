@@ -12,7 +12,7 @@ table 50150 "Gate Pass Out"
             trigger OnValidate()
             var
                 ImsSetup: Record "IMS Setup";
-                NoSeriesMgmt: Codeunit NoSeriesManagement;
+                NoSeriesMgmt: Codeunit "No. Series";
             begin
                 if "Gate Pass No." <> xRec."Gate Pass No." then begin
                     ImsSetup.Get;
@@ -267,6 +267,19 @@ table 50150 "Gate Pass Out"
             DataClassification = ToBeClassified;
             Editable = false;
         }
+        field(53; "Stripped Units"; Boolean)
+        {
+
+            DataClassification = ToBeClassified;
+
+        }
+        field(54; "Shortcut Dimension 6 Code"; Code[20])
+        {
+            CaptionClass = '1,2,6';
+            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(6),
+                                                                  "Dimension Value Type" = CONST(Standard),
+                                                                  Blocked = CONST(false));
+        }
 
 
 
@@ -281,13 +294,17 @@ table 50150 "Gate Pass Out"
     trigger OnInsert()
     var
         ImsSetup: Record "IMS Setup";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeriesMgt: Codeunit "No. Series";
     begin
         Rec."User ID" := UserId;
         if "Gate Pass No." = '' THEN begin
             ImsSetup.Get;
             ImsSetup.TestField("Out Gate Pass Nos");
-            NoSeriesMgt.InitSeries(ImsSetup."Out Gate Pass Nos", xRec."Gate Pass No.", 0D, "Gate Pass No.", "No.Series");
+            //NoSeriesMgt.InitSeries(ImsSetup."Out Gate Pass Nos", xRec."Gate Pass No.", 0D, "Gate Pass No.", "No.Series");
+            "No.Series" := ImsSetup."Out Gate Pass Nos";
+            if NoSeriesMgt.AreRelated(ImsSetup."Out Gate Pass Nos", xRec."No.Series") then
+                "No.Series" := xRec."No.Series";
+            "Gate Pass No." := NoSeriesMgt.GetNextNo("No.Series");
         end;
         rec."Activity Date" := Today();
         rec."Activity Time" := Time;
@@ -308,14 +325,14 @@ table 50150 "Gate Pass Out"
     var
         GatePassRec1: Record "Gate Pass Out";
         ImsSetup: Record "IMS Setup";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeriesMgt: Codeunit "No. Series";
 
     begin
         GatePassRec1 := Rec;
         ImsSetup.GET;
         ImsSetup.TESTFIELD(ImsSetup."Out Gate Pass Nos");
-        IF NoSeriesMgt.SelectSeries(ImsSetup."Out Gate Pass Nos", GatePassRec."No.Series", "No.Series") THEN BEGIN
-            NoSeriesMgt.SetSeries("Gate Pass No.");
+        IF NoSeriesMgt.LookupRelatedNoSeries(ImsSetup."Out Gate Pass Nos", GatePassRec."No.Series", "No.Series") THEN BEGIN
+            NoSeriesMgt.GetNextNo("Gate Pass No.");
             Rec := GatePassRec1;
             EXIT(TRUE);
         END;
@@ -380,6 +397,99 @@ table 50150 "Gate Pass Out"
 
         Message('%1 Printed & posted successfully', TableCaption);
     end;
+    //for empty containers
+    Procedure InsertEmptyGatepassLines()
+    var
+
+        ManifestLine: Record "Manifest Line";
+        GManifestLine, TestManifestLine : Record "Manifest Line";
+        ClosedCont: Integer;
+        ManifestLookup: Page "Manifest lookup";
+        EmptyContainerManifest: record "Manifest Line" temporary;
+        SelectionFilter: Text;
+    begin
+
+        ClosedCont := 0;
+        //EmptyContainerManifest.DeleteAll();
+        if rec."Shortcut Dimension 6 Code" = 'EMPTY CONTAINER' Then begin
+            ManifestLine.Reset();
+            ManifestLine.SetRange("Shortcut Dimension 6 Code", Rec."Shortcut Dimension 6 Code");
+            ManifestLine.SetRange(Released, False);
+            if ManifestLine.FindSet() then
+                repeat
+                    EmptyContainerManifest.init();
+                    EmptyContainerManifest.TransferFields(ManifestLine);
+                    EmptyContainerManifest.Insert();
+                until ManifestLine.Next() = 0;
+
+            clear(ManifestLookup);
+            ManifestLookup.SetTempManifest(EmptyContainerManifest);
+            ManifestLookup.GetGPNo(Rec."Gate Pass No.");
+            ManifestLookup.LookupMode(true);
+            if ManifestLookup.RunModal = ACTION::LookupOK then begin
+
+                GatePassLine.Reset();
+                GatePassLine.SetRange("Gate Pass No.", Rec."Gate Pass No.");
+                if GatePassLine.FindSet() then
+                    if Confirm('Do you want to delete existing gate pass lines?', true) then
+                        GatePassLine.DeleteAll()
+                    else
+                        exit;
+
+                if EmptyContainerManifest.FindSet() then
+                    repeat
+                        if EmptyContainerManifest.Selected then
+                            InsertEmptyContainerGatePassLine(EmptyContainerManifest);
+                    until EmptyContainerManifest.Next() = 0;
+
+
+            end;
+
+        end else
+            exit;
+    End;
+
+    Procedure InsertEmptyContainerGatePassLine(Var TempManifest: record "Manifest Line" temporary)
+    var
+        GatePassLine: record "Gate Pass Out Line";
+        GPHead: record "Gate Pass Out";
+        LineNo: Integer;
+    begin
+        GatePassLine.Reset();
+        GatePassLine.SetRange("Gate Pass No.", Rec."Gate Pass No.");
+
+        if GatePassLine.FindLast() then
+            LineNo := GatePassLine."Line No." + 10000;
+
+
+        GatePassLine.Init();
+        GatePassLine."Gate Pass No." := Rec."Gate Pass No.";
+        GatePassLine."Line No." := LineNo;
+        GatePassLine.Insert();
+
+        //GatePassLine."Invoice No." := SalesInvLine."Document No.";
+        GatePassLine."Global Dimension 1 Code" := TempManifest."Global Dimension 1 Code";
+        GatePassLine."Global Dimension 2 Code" := TempManifest."Global Dimension 2 Code";
+        GatePassLine."Shortcut Dimension 3 Code" := TempManifest."Shortcut Dimension 3 Code";
+        GatePassLine."Shortcut Dimension 4 Code" := TempManifest."Shortcut Dimension 4 Code";
+        GatePassLine."Shortcut Dimension 5 Code" := TempManifest."Shortcut Dimension 5 Code";
+        GatePassLine."Shortcut Dimension 6 Code" := TempManifest."Shortcut Dimension 6 Code";
+        GatePassLine."Job File No" := TempManifest."Job File No.";
+        GatePassLine."Container /Chasis No." := TempManifest."Container/Chassis No.";
+        //GatePassLine."Position ID" := TempManifest.
+        GatePassLine."BL No" := TempManifest."BL No.";
+        //GatePassLine."Invoice Date" := SalesInvLine."Posting Date";
+        GatePassLine."Consignee No." := TempManifest."Consignee No.";
+        // GatePassLine."Gen. Bus. Posting Group" := SalesInvLine."Gen. Bus. Posting Group";
+        // GatePassLine."Gen. Prod. Posting Group" := SalesInvLine."Gen. Prod. Posting Group";
+        GatePassLine."Activity Date" := Rec."Activity Date";
+        GatePassLine."Activity Time" := Rec."Activity Time";
+        GatePassLine."Consignee Name" := TempManifest."Consignee Name";
+
+        GatePassLine.Modify();
+
+    end;
+    //end of empty container
 
     procedure CheckPayments()
     var
@@ -394,6 +504,11 @@ table 50150 "Gate Pass Out"
         Customer: Record Customer;
         Overdue: Boolean;
         GPNo: Code[20];
+        ManifestLine: Record "Manifest Line";
+        ManifestLookup: Page "Manifest lookup";
+        TempSelectedContainers: record "Manifest Line" temporary;
+
+
     begin
         CustledgEntry.Reset();
         CustledgEntry.SetRange("Customer No.", rec."Consignee No.");
@@ -419,47 +534,79 @@ table 50150 "Gate Pass Out"
         SalesInvLine.CalcFields(Cancelled);
         SalesInvLine.SetRange(Cancelled, false);
         if SalesInvLine.FindSet() then begin
-            LineNo := 0;
-            repeat
-                EntryNo := 0;
-                //TempCustLedgEntry.DeleteAll();
-                IF PrevDocNo <> SalesInvLine."Document No." then begin
-                    RecCustLedgEntry.Reset();
-                    RecCustLedgEntry.SetRange("Document No.", SalesInvLine."Document No.");
-                    if RecCustLedgEntry.FindFirst() then
-                        repeat
-                            //Message(Format(RecCustLedgEntry."Document No."));
-                            TempCustLedgEntry.Init();
-                            TempCustLedgEntry."Entry No." := RecCustLedgEntry."Entry No.";
-                            TempCustLedgEntry."Document Type" := RecCustLedgEntry."Document Type";
-                            TempCustLedgEntry."Document Date" := RecCustLedgEntry."Document Date";
-                            TempCustLedgEntry."Document No." := RecCustLedgEntry."Document No.";
-                            TempCustLedgEntry."Posting Date" := RecCustLedgEntry."Posting Date";
-                            TempCustLedgEntry.Amount := RecCustLedgEntry.Amount;
-                            TempCustLedgEntry."Customer No." := RecCustLedgEntry."Customer No.";
-                            TempCustLedgEntry."Customer Name" := RecCustLedgEntry."Customer Name";
-                            TempCustLedgEntry."Remaining Amount" := RecCustLedgEntry."Remaining Amount";
-                            TempCustLedgEntry."Currency Code" := RecCustLedgEntry."Currency Code";
-                            TempCustLedgEntry.Insert();
+            if not rec."Stripped Units" then begin
+                LineNo := 0;
+                repeat
+                    EntryNo := 0;
+                    //TempCustLedgEntry.DeleteAll();
+                    IF PrevDocNo <> SalesInvLine."Document No." then begin
+                        RecCustLedgEntry.Reset();
+                        RecCustLedgEntry.SetRange("Document No.", SalesInvLine."Document No.");
+                        if RecCustLedgEntry.FindFirst() then
+                            repeat
+                                //Message(Format(RecCustLedgEntry."Document No."));
+                                TempCustLedgEntry.Init();
+                                TempCustLedgEntry."Entry No." := RecCustLedgEntry."Entry No.";
+                                TempCustLedgEntry."Document Type" := RecCustLedgEntry."Document Type";
+                                TempCustLedgEntry."Document Date" := RecCustLedgEntry."Document Date";
+                                TempCustLedgEntry."Document No." := RecCustLedgEntry."Document No.";
+                                TempCustLedgEntry."Posting Date" := RecCustLedgEntry."Posting Date";
+                                TempCustLedgEntry.Amount := RecCustLedgEntry.Amount;
+                                TempCustLedgEntry."Customer No." := RecCustLedgEntry."Customer No.";
+                                TempCustLedgEntry."Customer Name" := RecCustLedgEntry."Customer Name";
+                                TempCustLedgEntry."Remaining Amount" := RecCustLedgEntry."Remaining Amount";
+                                TempCustLedgEntry."Currency Code" := RecCustLedgEntry."Currency Code";
+                                TempCustLedgEntry.Insert();
 
-                        until RecCustLedgEntry.Next() = 0;
+                            until RecCustLedgEntry.Next() = 0;
 
-                    PrevDocNo := SalesInvLine."Document No.";
+                        PrevDocNo := SalesInvLine."Document No.";
+                    end;
+                until SalesInvLine.Next() = 0;
+
+                // if page.RunModal(50200, TempCustLedgEntry) = ACTION::LookupOK then begin
+                // end;
+                clear(PageInvoiceStatus);
+                PageInvoiceStatus.SetTableView(TempCustLedgEntry);
+                PageInvoiceStatus.SetRecord(TempCustLedgEntry);
+                PageInvoiceStatus.GetGPNo(Rec."Gate Pass No.");
+                PageInvoiceStatus.LookupMode(true);
+                COMMIT;
+                if PageInvoiceStatus.RunModal = ACTION::LookupOK then begin
                 end;
-            until SalesInvLine.Next() = 0;
+            end else begin
+                //Adding the stripped units flow for ones with the parent id
 
-            // if page.RunModal(50200, TempCustLedgEntry) = ACTION::LookupOK then begin
-            // end;
-            clear(PageInvoiceStatus);
-            PageInvoiceStatus.SetTableView(TempCustLedgEntry);
-            PageInvoiceStatus.SetRecord(TempCustLedgEntry);
-            PageInvoiceStatus.GetGPNo(Rec."Gate Pass No.");
-            PageInvoiceStatus.LookupMode(true);
-            COMMIT;
-            if PageInvoiceStatus.RunModal = ACTION::LookupOK then begin
+                ManifestLine.Reset();
+                ManifestLine.SetRange("BL No.", SalesInvLine."BL No.");
+                ManifestLine.SetFilter("Parent Container ID", '<>%1', '');
+                if ManifestLine.FindSet() then
+                    repeat
+                        TempSelectedContainers.init();
+                        TempSelectedContainers."Global Dimension 1 Code" := ManifestLine."Global Dimension 1 Code";
+                        TempSelectedContainers."Global Dimension 2 Code" := ManifestLine."Global Dimension 2 Code";
+                        TempSelectedContainers."Shortcut Dimension 3 Code" := ManifestLine."Shortcut Dimension 3 Code";
+                        TempSelectedContainers."Shortcut Dimension 4 Code" := ManifestLine."Shortcut Dimension 4 Code";
+                        TempSelectedContainers."Shortcut Dimension 5 Code" := ManifestLine."Shortcut Dimension 5 Code";
+                        TempSelectedContainers."Shortcut Dimension 6 Code" := ManifestLine."Shortcut Dimension 6 Code";
+                        TempSelectedContainers."Job File No." := ManifestLine."Job File No.";
+                        TempSelectedContainers."BL No." := ManifestLine."BL No.";
+                        TempSelectedContainers."Parent Container ID" := ManifestLine."Parent Container ID";
+                        TempSelectedContainers."Container/Chassis No." := ManifestLine."Container/Chassis No.";
+                        TempSelectedContainers.Insert();
+                    until ManifestLine.Next() = 0;
+                clear(ManifestLookup);
+                ManifestLookup.SetTableView(TempSelectedContainers);
+                ManifestLookup.SetRecord(TempSelectedContainers);
+                ManifestLookup.GetGPNo(Rec."Gate Pass No.");
+                ManifestLookup.LookupMode(true);
+                if ManifestLookup.RunModal = ACTION::LookupOK then begin
+
+                end;
             end;
+
         end else
-            Message('Invoice does not found');
+            Message('Invoice  not found');
 
     End;
 
@@ -758,6 +905,8 @@ table 50150 "Gate Pass Out"
         end;
     end;
 
+    var
+        GatePassLine: Record "Gate Pass Out Line";
 
 
 }

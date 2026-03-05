@@ -246,10 +246,15 @@ table 50110 "Receiving Journal"
     }
     keys
     {
-        key(PK; "Line No.")
+        key(PK; "User ID", "Line No.")
         {
             Clustered = true;
         }
     }
+    trigger OnInsert()
+    begin
+        "User ID" := USERID;
+
+    end;
 
 }

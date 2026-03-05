@@ -630,7 +630,7 @@ table 50135 ImportManifest
     procedure Createmanifest()
     var
         MFLine: Record "Manifest Line";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeriesMgt: Codeunit "No. Series";
         IMSSetup: Record "Ims Setup";
         LineNo: Integer;
         ImportWs, ImportWS2 : Record ImportManifest;

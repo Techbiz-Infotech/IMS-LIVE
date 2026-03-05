@@ -13,7 +13,7 @@ table 50103 YardAllocation
             var
 
                 ImsSetup: Record "IMS Setup";
-                NoSeriesMgmt: Codeunit NoSeriesManagement;
+                NoSeriesMgmt: Codeunit "No. Series";
             begin
                 if "Yard Allocation No." <> xRec."Yard Allocation No." then begin
                     ImsSetup.Get;
@@ -137,13 +137,18 @@ table 50103 YardAllocation
     trigger OnInsert()
     var
         AimsRec: Record "IMS Setup";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeriesMgt: Codeunit "No. Series";
     begin
         Rec."User ID" := UserId;
         if "Yard Allocation No." = '' THEN begin
             AimsRec.Get;
             AimsRec.TestField("Yard Allocation Nos");
-            NoSeriesMgt.InitSeries(AimsRec."Yard Allocation Nos", xRec."Yard Allocation No.", 0D, "Yard Allocation No.", "No.Series");
+            //NoSeriesMgt.InitSeries(AimsRec."Yard Allocation Nos", xRec."Yard Allocation No.", 0D, "Yard Allocation No.", "No.Series");
+            "No.Series" := AimsRec."Yard Allocation Nos";
+            if NoSeriesMgt.AreRelated(AimsRec."Yard Allocation Nos", xRec."No.Series") then
+                "No.Series" := xRec."No.Series";
+            "Yard Allocation No." := NoSeriesMgt.GetNextNo("No.Series");
+
         end;
         rec."Allocation Date" := today();
         rec."Allocation Time" := Time;
@@ -153,14 +158,14 @@ table 50103 YardAllocation
     var
         YardRec1: Record YardAllocation;
         ImsSetup: Record "IMS Setup";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeriesMgt: Codeunit "No. Series";
 
     begin
         YardRec1 := Rec;
         ImsSetup.GET;
         ImsSetup.TESTFIELD(ImsSetup."Yard Allocation Nos");
-        IF NoSeriesMgt.SelectSeries(ImsSetup."Yard Allocation Nos", YardRec."No.Series", "No.Series") THEN BEGIN
-            NoSeriesMgt.SetSeries("Yard Allocation No.");
+        IF NoSeriesMgt.LookupRelatedNoSeries(ImsSetup."Yard Allocation Nos", YardRec."No.Series", "No.Series") THEN BEGIN
+            NoSeriesMgt.GetNextNo("Yard Allocation No.");
             Rec := YardRec1;
             EXIT(TRUE);
         END;

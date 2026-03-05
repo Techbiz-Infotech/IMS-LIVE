@@ -1,9 +1,11 @@
-page 50155 "Gate Pass Out Card"
+
+page 50058 "Empty Container Gatepass"
 {
-    Caption = 'Gate Pass Outs';
-    pageType = Document;
+    ApplicationArea = All;
+    Caption = 'Empty Container Gatepass';
     SourceTable = "Gate Pass Out";
-    AboutTitle = 'About Gate Pass out details';
+    PageType = Document;
+
 
     layout
     {
@@ -33,11 +35,10 @@ page 50155 "Gate Pass Out Card"
                     ToolTip = 'Specifies the value of the Gate Pass Out Time field.';
                     ApplicationArea = All;
                 }
-                field("BL No."; Rec."BL No.")
+                field("Shortcut Dimension 6 Code"; Rec."Shortcut Dimension 6 Code")
                 {
-                    ToolTip = 'Specifies the value of the BL No. field.';
+                    ToolTip = 'Specifies the value of the Process Type field.';
                     ApplicationArea = All;
-
                 }
                 field("Job File No."; Rec."Job File No.")
                 {
@@ -73,14 +74,10 @@ page 50155 "Gate Pass Out Card"
                 {
                     ApplicationArea = all;
                 }
-                field("Stripped Units"; Rec."Stripped Units")
-                {
-                    ApplicationArea = All;
-                }
 
 
             }
-            part(GatePassLines; "Gate Pass Out Subform")
+            part(GatePassLines; "Empty Container Subform")
             {
                 ApplicationArea = all;
                 SubPageLink = "Gate Pass No." = field("Gate Pass No.");
@@ -105,30 +102,13 @@ page 50155 "Gate Pass Out Card"
             {
                 ApplicationArea = All;
                 Caption = 'Get Lines';
-                Visible = false;
-                trigger OnAction()
-                begin
-                    Rec.InsertGatePassLines();
-                end;
-            }
-            action(VerifyReceipts)
-            {
-                ApplicationArea = All;
-                Caption = 'Verify Receipts & Get Lines';
-                Visible = PageEdit;
 
                 trigger OnAction()
-                var
-                    InvoiceStatus: page InvoiceStatusList;
                 begin
-                    // InvoiceStatus.LookupMode(true);
-                    // InvoiceStatus.GetGPNo(Rec."Gate Pass No.");
-                    // if InvoiceStatus.RunModal() = ACTION::LookupOK then begin
-
-                    // end;
-                    Rec.CheckPayments();
+                    Rec.InsertEmptyGatepassLines();
                 end;
             }
+
             action(Approve)
             {
                 ApplicationArea = All;
@@ -271,6 +251,11 @@ page 50155 "Gate Pass Out Card"
             PageEdit2 := true;
 
 
+    end;
+
+    trigger OnNewRecord(BelowxRec: Boolean)
+    begin
+        Rec."Shortcut Dimension 6 Code" := 'EMPTY CONTAINER';
     end;
 
     trigger OnModifyRecord(): Boolean

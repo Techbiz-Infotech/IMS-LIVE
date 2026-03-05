@@ -15,7 +15,7 @@ table 50119 Port
             var
 
                 ImsSetup: Record "IMS Setup";
-                NoSeriesMgmt: Codeunit NoSeriesManagement;
+                NoSeriesMgmt: Codeunit "No. Series";
             begin
                 if "Port Code" <> xRec."Port Code" then begin
                     ImsSetup.Get;
@@ -61,13 +61,17 @@ table 50119 Port
     var
         //myInt: Integer;
         ImsSetup: Record "IMS Setup";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeriesMgt: Codeunit "No. Series";
     begin
         Rec."User ID" := UserId;
         if "Port Code" = '' THEN begin
             ImsSetup.Get;
             ImsSetup.TestField("Port Nos");
-            NoSeriesMgt.InitSeries(ImsSetup."Port Nos", xRec."Port Code", 0D, "Port Code", "No.Series");
+            //NoSeriesMgt.InitSeries(ImsSetup."Port Nos", xRec."Port Code", 0D, "Port Code", "No.Series");
+            "No.Series" := ImsSetup."Port Nos";
+            if NoSeriesMgt.AreRelated(ImsSetup."Port Nos", xRec."No.Series") then
+                "No.Series" := xRec."No.Series";
+            "Port Code" := NoSeriesMgt.GetNextNo("No.Series");
         end;
 
     end;
@@ -76,14 +80,14 @@ table 50119 Port
     var
         PortRec1: Record Port;
         ImsSetup: Record "IMS Setup";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeriesMgt: Codeunit "No. Series";
 
     begin
         PortRec1 := Rec;
         ImsSetup.GET;
         ImsSetup.TESTFIELD(ImsSetup."Port Nos");
-        IF NoSeriesMgt.SelectSeries(ImsSetup."Port Nos", PortRec."No.Series", "No.Series") THEN BEGIN
-            NoSeriesMgt.SetSeries("Port Code");
+        IF NoSeriesMgt.LookupRelatedNoSeries(ImsSetup."Port Nos", PortRec."No.Series", "No.Series") THEN BEGIN
+            NoSeriesMgt.GetNextNo("Port Code");
             Rec := PortRec1;
             EXIT(TRUE);
         END;

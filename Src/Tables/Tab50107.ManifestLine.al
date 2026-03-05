@@ -668,6 +668,10 @@ table 50107 "Manifest Line"
             DataClassification = ToBeClassified;
             Caption = '"Cargo Nomination No."';
         }
+        field(96; "Selected"; Boolean)
+        {
+            DataClassification = ToBeClassified;
+        }
     }
     keys
     {
@@ -722,7 +726,7 @@ table 50107 "Manifest Line"
     trigger OnInsert()
     var
         ImsSetup: Record "IMS Setup";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeriesMgt: Codeunit "No. Series";
     begin
         // Rec."User ID" := UserId;
         // Manifested := true;
@@ -740,14 +744,14 @@ table 50107 "Manifest Line"
     var
         ManiRec: Record "Manifest Line";
         ImsSetup: Record "IMS Setup";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeriesMgt: Codeunit "No. Series";
 
     begin
         ManiRec := Rec;
         ImsSetup.Get;
         ImsSetup.TestField("Job File Nos");
-        if NoSeriesMgt.SelectSeries(ImsSetup."Job File Nos", ManifestRec."No.Series", "No.Series") then begin
-            NoSeriesMgt.SetSeries("Job File No.");
+        if NoSeriesMgt.LookupRelatedNoSeries(ImsSetup."Job File Nos", ManifestRec."No.Series", "No.Series") then begin
+            NoSeriesMgt.GetNextNo("Job File No.");
             Rec := ManiRec;
             exit(true);
         end;

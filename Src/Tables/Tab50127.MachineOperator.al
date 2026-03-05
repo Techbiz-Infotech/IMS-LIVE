@@ -15,7 +15,7 @@ table 50127 "Machine Operator"
             var
 
                 ImsSetup: Record "IMS Setup";
-                NoSeriesMgmt: Codeunit NoSeriesManagement;
+                NoSeriesMgmt: Codeunit "No. Series";
             begin
                 if "Machine Operator Code" <> xRec."Machine Operator Code" then begin
                     ImsSetup.Get;
@@ -61,13 +61,18 @@ table 50127 "Machine Operator"
     var
         //myInt: Integer;
         ImsSetup: Record "IMS Setup";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeriesMgt: Codeunit "No. Series";
     begin
         Rec."User ID" := UserId;
         if "Machine Operator Code" = '' THEN begin
             ImsSetup.Get;
             ImsSetup.TestField("Machine Operator Nos");
-            NoSeriesMgt.InitSeries(ImsSetup."Machine Operator Nos", xRec."Machine Operator Code", 0D, "Machine Operator Code", "No.Series");
+            //NoSeriesMgt.InitSeries(ImsSetup."Machine Operator Nos", xRec."Machine Operator Code", 0D, "Machine Operator Code", "No.Series");
+            "No.Series" := ImsSetup."Machine Operator Nos";
+            if NoSeriesMgt.AreRelated(ImsSetup."Machine Operator Nos", xRec."No.Series") then
+                "No.Series" := xRec."No.Series";
+            "Machine Operator Code" := NoSeriesMgt.GetNextNo("No.Series");
+
         end;
     end;
 
@@ -75,14 +80,14 @@ table 50127 "Machine Operator"
     var
         MachineOpeRec1: Record "Machine Operator";
         ImsSetup: Record "IMS Setup";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeriesMgt: Codeunit "No. Series";
 
     begin
         MachineOpeRec1 := Rec;
         ImsSetup.GET;
         ImsSetup.TESTFIELD(ImsSetup."Machine Operator Nos");
-        IF NoSeriesMgt.SelectSeries(ImsSetup."Machine Operator Nos", MachineOpeRec."No.Series", "No.Series") THEN BEGIN
-            NoSeriesMgt.SetSeries("Machine Operator Code");
+        IF NoSeriesMgt.LookupRelatedNoSeries(ImsSetup."Machine Operator Nos", MachineOpeRec."No.Series", "No.Series") THEN BEGIN
+            NoSeriesMgt.GetNextNo("Machine Operator Code");
             Rec := MachineOpeRec1;
             EXIT(TRUE);
         END;

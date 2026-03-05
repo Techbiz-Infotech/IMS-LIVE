@@ -217,6 +217,38 @@ codeunit 50100 Events
             end;
         end;
     end;
+    //change purchase description(fixed asset)
+    [EventSubscriber(ObjectType::Table, Database::"G/L Entry", 'OnAfterInsertEvent', '', true, true)]
+    local procedure UpdateGLEntryDescriptionFromPostedLine(var Rec: Record "G/L Entry")
+    var
+        PurchInvLine: Record "Purch. Inv. Line";
+        PurchCrMemoLine: Record "Purch. Cr. Memo Line";
+
+    begin
+
+        if Rec."Source Type" <> Rec."Source Type"::"Fixed Asset" then
+            exit;
+
+        PurchInvLine.SetRange("Document No.", Rec."Document No.");
+        PurchInvLine.SetRange(Type, PurchInvLine.Type::"Fixed Asset");
+        PurchInvLine.SetRange("No.", Rec."Source No.");
+
+        if PurchInvLine.FindFirst() then begin
+            Rec.Description := PurchInvLine.Description;
+            Rec.Modify();
+            exit;
+        end;
+
+        PurchCrMemoLine.SetRange("Document No.", Rec."Document No.");
+        PurchCrMemoLine.SetRange(Type, PurchCrMemoLine.Type::"Fixed Asset");
+        PurchCrMemoLine.SetRange("No.", Rec."Source No.");
+
+        if PurchCrMemoLine.FindFirst() then begin
+            Rec.Description := PurchCrMemoLine.Description;
+            Rec.Modify();
+        end;
+    end;
+
 
     [EventSubscriber(ObjectType::Table, Database::"G/L Entry", 'OnAfterCopyGLEntryFromGenJnlLine', '', true, true)]
     local procedure OnAfterCopyGLEntryFromGenJnlLine(var GLEntry: Record "G/L Entry"; var GenJournalLine: Record "Gen. Journal Line")
@@ -274,7 +306,7 @@ codeunit 50100 Events
     local procedure "Release Sales Document_OnCodeOnBeforeSetStatusReleased"(var SalesHeader: Record "Sales Header")
     begin
         if SalesHeader."Document Type" = SalesHeader."Document Type"::Order then
-        SalesHeader."Proforma No." := SalesHeader."No.";
+            SalesHeader."Proforma No." := SalesHeader."No.";
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Sales Header", 'OnBeforeIsApprovedForPosting', '', false, false)]
