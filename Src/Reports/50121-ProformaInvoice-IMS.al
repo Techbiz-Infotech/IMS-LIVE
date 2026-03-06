@@ -279,7 +279,9 @@ report 50121 "Proforma Invoice- IMS"
                 StorageDays := SalesLine2."Storage Days";
             end;
         }
+        
     }
+    
     var
         myInt: Integer;
         //manifestheaderInfo: Record "Manifest Header";

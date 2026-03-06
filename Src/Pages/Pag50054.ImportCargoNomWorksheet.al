@@ -60,6 +60,7 @@ page 50054 "Import Cargo Nom Worksheet"
                     ApplicationArea = All;
                     ToolTip = 'Specifies the value of the Remarks field.';
                     StyleExpr = StyleExprTxtRemarks;
+                    Editable = false;
                 }
                 field("Clearing Agent"; Rec."Clearing Agent")
                 {

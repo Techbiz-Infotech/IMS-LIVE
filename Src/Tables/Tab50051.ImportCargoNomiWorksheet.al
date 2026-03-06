@@ -444,7 +444,19 @@ table 50051 "Import Cargo Nomi Worksheet"
                         ImportWS.Remarks := ImportWS.Remarks + ' | ' + 'Destination Type does not exist.'
                     else
                         ImportWS.Remarks := 'Destination Type does not exist.'
-                end;
+                end else
+                    if ImportWS."Destination Type" <> '' then begin
+                        if (ImportWS."Destination Type" <> 'LOCAL') and
+                           (ImportWS."Destination Type" <> 'TRANSIT') and
+                           (ImportWS."Destination Type" <> 'EXPORT') then begin
+                            if ImportWS.Remarks <> '' then
+                                ImportWS.Remarks := ImportWS.Remarks + ' | ' + 'Destination Type should equal to local, transit, or export.'
+                            else
+                                ImportWS.Remarks := 'Destination Type should equal to local, transit, or export.'
+                        end;
+
+                    end;
+
                 if ImportWS."Client Type" = '' then begin
                     if ImportWS.Remarks <> '' then
                         ImportWS.Remarks := ImportWS.Remarks + ' | ' + 'Client Type does not exist.'
