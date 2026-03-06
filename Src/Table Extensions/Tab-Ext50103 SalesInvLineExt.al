@@ -170,5 +170,11 @@ tableextension 50103 SaleInvLineExt extends "Sales Invoice Line"
             Editable = false;
             FieldClass = FlowField;
         }
+        // field(50151; "IMS Item Category Code"; Code[20])
+        // {
+        //     Caption = 'IMS Item Category Code';
+        //     FieldClass = FlowField;
+        //     CalcFormula = lookup("Item" where "No." = field("Item No."), "IMS Item Category Code");
+        // }
     }
 }
