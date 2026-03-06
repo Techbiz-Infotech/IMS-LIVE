@@ -292,6 +292,18 @@ page 50104 "proforma Invoice"
                             end;
                         end;
                     }
+                    field("Shortcut Dimension 6 Code"; Rec."Shortcut Dimension 6 Code")
+                    {
+                        ApplicationArea = All;
+                    }
+                    field("Start Date"; Rec."Start Date")
+                    {
+                        ApplicationArea = All;
+                    }
+                    field("End Date"; Rec."End Date")
+                    {
+                        ApplicationArea = All;
+                    }
                     field("Reefer Hours Upto"; rec."Reefer Hours Upto")
                     {
                         ApplicationArea = All;
@@ -908,7 +920,14 @@ page 50104 "proforma Invoice"
 
                     trigger OnAction()
                     begin
-                        CalculateLineCharges();
+                        if rec."Shortcut Dimension 6 Code" <> 'EMPTY CONTAINER' Then
+                            CalculateLineCharges()
+                        else begin
+                            Rec.TestField("Start Date");
+                            Rec.TestField("End Date");
+                            Rec.TestField("Shortcut Dimension 6 Code");
+                            CalculateEmptyContainerLineCharges();
+                        end;
                     end;
                 }
 
@@ -1576,6 +1595,7 @@ page 50104 "proforma Invoice"
         PageContainerList: page ContainerListForProforma;
         Invoicable: Boolean;
     begin
+
         ManifestLine.Reset();
         ManifestLine.SetRange("BL No.", rec."BL No.");
         ManifestLine.SetRange("Container lock", false);
@@ -1594,6 +1614,37 @@ page 50104 "proforma Invoice"
             //Message('Calculated Successfully');
         end;
     end;
+    //calculate empty container charges
+    procedure CalculateEmptyContainerLineCharges()
+    var
+        ManifestLine, MFLine : Record "Manifest Line";
+        TempManifestLine: Record "Manifest Line" temporary;
+        PageContainerList: page ContainerListForProforma;
+        Invoicable: Boolean;
+    begin
+
+        ManifestLine.Reset();
+        ManifestLine.SetRange("Shortcut Dimension 6 Code", rec."Shortcut Dimension 6 Code");
+        ManifestLine.SetRange("Container lock", false);
+        ManifestLine.SetRange(Received, true);
+        ManifestLine.SetAutoCalcFields(Invoices);
+        ManifestLine.SetRange(Invoices, False);
+        ManifestLine.SetRange(Manifested, true);
+        ManifestLine.SetFilter("Date Received", '%1..%2', Rec."Start Date", Rec."End Date");
+        //ManifestLine.SetRange(Verified, true);
+        ManifestLine.SetRange(Released, True);
+
+
+        clear(PageContainerList);
+        PageContainerList.SetTableView(ManifestLine);
+        PageContainerList.SetRecord(ManifestLine);
+        PageContainerList.LookupMode(true);
+        PageContainerList.GetSalesOrderNo(rec."No.", rec."Sell-to Customer No.");
+        if PageContainerList.RunModal = ACTION::LookupOK then begin
+            //Message('Calculated Successfully');
+        end;
+    end;
+
 
     procedure CalculateAdditionalCharges()
     var

@@ -742,6 +742,7 @@ page 50056 "Manifest lookup"
                     TempCLE.Modify();
 
                 until Rec.NEXT = 0;
+
             GPHead.Reset();
             GPHead.SetRange("Gate Pass No.", GPNo);
             if GPHead.FindFirst() then begin
@@ -755,10 +756,15 @@ page 50056 "Manifest lookup"
                 end;
             end;
 
+
             If TempCLE.FindSet() then
                 repeat
-                    if TempCLE."Parent Container ID" <> '' then
-                        InsertStrippedGatePassLines(TempCLE);
+                    if GPHead.get(GPNo) then
+                        if GPHead.Approved THEN
+                            GPHead.InsertEmptyContainerGatePassLine(TempCLE)
+                        else
+                            if (TempCLE."Parent Container ID" <> '') and (GPHead.Approved = FALSE) then
+                                InsertStrippedGatePassLines(TempCLE);
                 until TempCLE.Next = 0;
 
 
@@ -954,130 +960,146 @@ page 50056 "Manifest lookup"
                         if CancelGatePass.FindFirst() then
                             GPCancelled := true
                         else
-                            Error('Gatepass was Cancelled');
+                            GPCancelled := false;
                     end else
                         GPCancelled := true;
-
-                    GLSetup.Get();
-
-                    ContainerRec.Reset();
-                    ContainerRec.SetRange("Dimension Code", GLSetup."Global Dimension 1 Code");
-                    ContainerRec.SetRange(Code, Manifest."Parent Container ID");
-                    ContainerRec.SetRange("Container Status", ContainerRec."Container Status"::"In Stock");
-
-                    if ContainerRec.FindFirst() then begin
-
-                        // ===== Extra Storage Calculation =====
-                        LSalesInvLine.Reset();
-                        LSalesInvLine.SetRange("BL No.", GPHead."BL No.");
-
-                        if LSalesInvLine.FindLast() then
-                            if LSalesInvLine."Posting Date" <> Today then begin
-
-                                GSalesInvLine.Reset();
-                                GSalesInvLine.SetCurrentKey("Document No.");
-                                GSalesInvLine.SetRange("Shortcut Dimension 1 Code", Manifest."Parent Container ID");
-                                GSalesInvLine.SetFilter("Chargable Storage Days", '<>%1', 0);
-
-                                if GSalesInvLine.FindFirst() then
-                                    repeat
-                                        if PrevDocNo <> GSalesInvLine."Document No." then
-                                            BilledStorageDays +=
-                                              GSalesInvLine."Storage Days" -
-                                              GSalesInvLine."Free Days";
-
-                                        PrevDocNo := GSalesInvLine."Document No.";
-                                    until GSalesInvLine.Next() = 0;
-
-                                GSalesInvLine.Reset();
-                                GSalesInvLine.SetRange("Shortcut Dimension 1 Code", manifest."Parent Container ID");
-
-                                if GSalesInvLine.FindFirst() then begin
-                                    if ChargeGroupHead.Get(GSalesInvLine."Charge ID") then begin
-                                        BaseOn := ChargeGroupHead."Base On";
-
-                                        ChargeGroupLine.Reset();
-                                        ChargeGroupLine.SetRange("Charge ID Group Code",
-                                                                 ChargeGroupHead."Charge ID Group Code");
-                                        ChargeGroupLine.SetFilter("Free Days", '<>%1', 0);
-
-                                        if ChargeGroupLine.FindFirst() then
-                                            FreeDays := ChargeGroupLine."Free Days"
-                                        else
-                                            FreeDays := 0;
-                                    end;
-
-                                    case BaseOn of
-                                        BaseOn::"Received Date":
-                                            StorageStartDate := Manifest."Date Received";
-                                        BaseOn::"ETA Date":
-                                            StorageStartDate := Manifest."Expected Arrival Date";
-                                        BaseOn::"Last Sling Date":
-                                            StorageStartDate := Manifest."Last Sling Date";
-                                        BaseOn::ActualDate:
-                                            StorageStartDate := Manifest."Vessel Arrival Date";
-                                    end;
-
-                                    if StorageStartDate <> 0D then
-                                        CurrentStorageDays := Today - StorageStartDate;
-                                end;
-
-                                if CurrentStorageDays > FreeDays then begin
-                                    RemainingDays :=
-                                      CurrentStorageDays - FreeDays - BilledStorageDays;
-
-                                    Error(
-                                      'Extra storage days to be billed: Please Contact Audit \' +
-                                      'Total Storage Days %1, Free Days %2, ' +
-                                      'Billed Storage Days %3, Remaining Days %4',
-                                      CurrentStorageDays,
-                                      FreeDays,
-                                      BilledStorageDays,
-                                      RemainingDays);
-                                end;
+                    if GPCancelled then begin
+                        SalesInvHead.Reset();
+                        SalesInvHead.SetRange("No.", SalesInvLine."Document No.");
+                        IF SalesInvHead.FindFirst() then begin
+                            PaymentMethod := SalesInvHead."Payment Method Code";
+                            PaymentTerms := SalesInvHead."Payment Terms Code";
+                            SalesInvHead.CalcFields(Closed);
+                            if not GPHead.Approved then begin
+                                if SalesInvHead.Closed <> true then
+                                    Error('Invoice %1 is not paid. Please check and try again', SalesInvHead."No.");
                             end;
+                        end else begin
+                            PaymentMethod := '';
+                            PaymentTerms := '';
+                        end;
 
-                        // ===== Additional Checks =====
-                        CheckVerificationCharges(Manifest."Global Dimension 1 Code");
-                        CheckAdditionalCharges(Manifest."Global Dimension 1 Code");
+                        GLSetup.Get();
 
-                        // ===== Insert Gate Pass Line =====
-                        GatePassLine.Reset();
-                        GatePassLine.SetRange("Gate Pass No.", GPHead."Gate Pass No.");
+                        ContainerRec.Reset();
+                        ContainerRec.SetRange("Dimension Code", GLSetup."Global Dimension 1 Code");
+                        ContainerRec.SetRange(Code, Manifest."Parent Container ID");
+                        ContainerRec.SetRange("Container Status", ContainerRec."Container Status"::"In Stock");
 
-                        if GatePassLine.FindLast() then
-                            LineNo := GatePassLine."Line No." + 10000;
+                        if ContainerRec.FindFirst() then begin
 
-                        GatePassLine.Init();
-                        GatePassLine."Gate Pass No." := GPHead."Gate Pass No.";
-                        GatePassLine."Line No." := LineNo;
-                        GatePassLine.Insert();
+                            // ===== Extra Storage Calculation =====
+                            LSalesInvLine.Reset();
+                            LSalesInvLine.SetRange("BL No.", GPHead."BL No.");
 
-                        GatePassLine."Invoice No." := SalesInvLine."Document No.";
-                        GatePassLine."Global Dimension 1 Code" := Manifest."Global Dimension 1 Code";
-                        GatePassLine."Global Dimension 2 Code" := Manifest."Global Dimension 2 Code";
-                        GatePassLine."Shortcut Dimension 3 Code" := Manifest."Shortcut Dimension 3 Code";
-                        GatePassLine."Shortcut Dimension 4 Code" := Manifest."Shortcut Dimension 4 Code";
-                        GatePassLine."Shortcut Dimension 5 Code" := Manifest."Shortcut Dimension 5 Code";
-                        GatePassLine."Shortcut Dimension 6 Code" := Manifest."Shortcut Dimension 6 Code";
-                        GatePassLine."Job File No" := Manifest."Job File No.";
-                        GatePassLine."Container /Chasis No." := Manifest."Container/Chassis No.";
-                        GatePassLine."Position ID" := SalesInvLine."Position ID";
-                        GatePassLine."BL No" := Manifest."BL No.";
-                        GatePassLine."Invoice Date" := SalesInvLine."Posting Date";
-                        GatePassLine."Consignee No." := SalesInvLine."Sell-to Customer No.";
-                        GatePassLine."Gen. Bus. Posting Group" := SalesInvLine."Gen. Bus. Posting Group";
-                        GatePassLine."Gen. Prod. Posting Group" := SalesInvLine."Gen. Prod. Posting Group";
-                        GatePassLine."Activity Date" := GPHead."Activity Date";
-                        GatePassLine."Activity Time" := GPHead."Activity Time";
+                            if LSalesInvLine.FindLast() then
+                                if LSalesInvLine."Posting Date" <> Today then begin
 
-                        if Cust.Get(SalesInvLine."Sell-to Customer No.") then
-                            GatePassLine."Consignee Name" := Cust.Name;
+                                    GSalesInvLine.Reset();
+                                    GSalesInvLine.SetCurrentKey("Document No.");
+                                    GSalesInvLine.SetRange("Shortcut Dimension 1 Code", Manifest."Parent Container ID");
+                                    GSalesInvLine.SetFilter("Chargable Storage Days", '<>%1', 0);
 
-                        GatePassLine.Modify();
+                                    if GSalesInvLine.FindFirst() then
+                                        repeat
+                                            if PrevDocNo <> GSalesInvLine."Document No." then
+                                                BilledStorageDays +=
+                                                  GSalesInvLine."Storage Days" -
+                                                  GSalesInvLine."Free Days";
 
-                        InvoiceCount += 1;
-                        PrevContainerNo := SalesInvLine."Shortcut Dimension 1 Code";
+                                            PrevDocNo := GSalesInvLine."Document No.";
+                                        until GSalesInvLine.Next() = 0;
+
+                                    GSalesInvLine.Reset();
+                                    GSalesInvLine.SetRange("Shortcut Dimension 1 Code", manifest."Parent Container ID");
+
+                                    if GSalesInvLine.FindFirst() then begin
+                                        if ChargeGroupHead.Get(GSalesInvLine."Charge ID") then begin
+                                            BaseOn := ChargeGroupHead."Base On";
+
+                                            ChargeGroupLine.Reset();
+                                            ChargeGroupLine.SetRange("Charge ID Group Code",
+                                                                     ChargeGroupHead."Charge ID Group Code");
+                                            ChargeGroupLine.SetFilter("Free Days", '<>%1', 0);
+
+                                            if ChargeGroupLine.FindFirst() then
+                                                FreeDays := ChargeGroupLine."Free Days"
+                                            else
+                                                FreeDays := 0;
+                                        end;
+
+                                        case BaseOn of
+                                            BaseOn::"Received Date":
+                                                StorageStartDate := Manifest."Date Received";
+                                            BaseOn::"ETA Date":
+                                                StorageStartDate := Manifest."Expected Arrival Date";
+                                            BaseOn::"Last Sling Date":
+                                                StorageStartDate := Manifest."Last Sling Date";
+                                            BaseOn::ActualDate:
+                                                StorageStartDate := Manifest."Vessel Arrival Date";
+                                        end;
+
+                                        if StorageStartDate <> 0D then
+                                            CurrentStorageDays := Today - StorageStartDate;
+                                    end;
+
+                                    if CurrentStorageDays > FreeDays then begin
+                                        RemainingDays :=
+                                          CurrentStorageDays - FreeDays - BilledStorageDays;
+
+                                        Error(
+                                          'Extra storage days to be billed: Please Contact Audit \' +
+                                          'Total Storage Days %1, Free Days %2, ' +
+                                          'Billed Storage Days %3, Remaining Days %4',
+                                          CurrentStorageDays,
+                                          FreeDays,
+                                          BilledStorageDays,
+                                          RemainingDays);
+                                    end;
+                                end;
+
+                            // ===== Additional Checks =====
+                            CheckVerificationCharges(Manifest."Global Dimension 1 Code");
+                            CheckAdditionalCharges(Manifest."Global Dimension 1 Code");
+
+                            // ===== Insert Gate Pass Line =====
+                            GatePassLine.Reset();
+                            GatePassLine.SetRange("Gate Pass No.", GPHead."Gate Pass No.");
+
+                            if GatePassLine.FindLast() then
+                                LineNo := GatePassLine."Line No." + 10000;
+
+                            GatePassLine.Init();
+                            GatePassLine."Gate Pass No." := GPHead."Gate Pass No.";
+                            GatePassLine."Line No." := LineNo;
+                            GatePassLine.Insert();
+
+                            GatePassLine."Invoice No." := SalesInvLine."Document No.";
+                            GatePassLine."Global Dimension 1 Code" := Manifest."Global Dimension 1 Code";
+                            GatePassLine."Global Dimension 2 Code" := Manifest."Global Dimension 2 Code";
+                            GatePassLine."Shortcut Dimension 3 Code" := Manifest."Shortcut Dimension 3 Code";
+                            GatePassLine."Shortcut Dimension 4 Code" := Manifest."Shortcut Dimension 4 Code";
+                            GatePassLine."Shortcut Dimension 5 Code" := Manifest."Shortcut Dimension 5 Code";
+                            GatePassLine."Shortcut Dimension 6 Code" := Manifest."Shortcut Dimension 6 Code";
+                            GatePassLine."Job File No" := Manifest."Job File No.";
+                            GatePassLine."Container /Chasis No." := Manifest."Container/Chassis No.";
+                            GatePassLine."Position ID" := SalesInvLine."Position ID";
+                            GatePassLine."BL No" := Manifest."BL No.";
+                            GatePassLine."Invoice Date" := SalesInvLine."Posting Date";
+                            GatePassLine."Consignee No." := SalesInvLine."Sell-to Customer No.";
+                            GatePassLine."Gen. Bus. Posting Group" := SalesInvLine."Gen. Bus. Posting Group";
+                            GatePassLine."Gen. Prod. Posting Group" := SalesInvLine."Gen. Prod. Posting Group";
+                            GatePassLine."Activity Date" := GPHead."Activity Date";
+                            GatePassLine."Activity Time" := GPHead."Activity Time";
+
+                            if Cust.Get(SalesInvLine."Sell-to Customer No.") then
+                                GatePassLine."Consignee Name" := Cust.Name;
+
+                            GatePassLine.Modify();
+
+                            InvoiceCount += 1;
+                            PrevContainerNo := SalesInvLine."Shortcut Dimension 1 Code";
+                        end;
                     end;
                     GetReceiptNo();
                 end else
@@ -1195,6 +1217,7 @@ page 50056 "Manifest lookup"
                     ManifestLine.Reset();
                     ManifestLine.SetRange("BL No.", SalesInvLine."BL No.");
                     ManifestLine.SetFilter("Parent Container ID", '<>%1', '');
+                    ManifestLine.SetRange(Released, false);
                     if ManifestLine.FindSet() then begin
                         repeat
                             Rec.init();
@@ -1207,7 +1230,10 @@ page 50056 "Manifest lookup"
                             Rec."Job File No." := ManifestLine."Job File No.";
                             Rec."BL No." := ManifestLine."BL No.";
                             Rec."Parent Container ID" := ManifestLine."Parent Container ID";
+                            Rec."Consignee No." := ManifestLine."Consignee No.";
+                            Rec."Consignee Name" := ManifestLine."Consignee Name";
                             Rec."Container/Chassis No." := ManifestLine."Container/Chassis No.";
+                            Rec."Line No." := ManifestLine."Line No.";
                             Rec.Insert();
                         until ManifestLine.Next() = 0;
                     end;
