@@ -1,23 +1,19 @@
-page 50300 "Manifests New"
+page 50056 "Manifest lookup"
 {
     ApplicationArea = All;
-    Caption = 'Manifests Lines';
+    Caption = 'Manifest lookup';
     PageType = List;
     SourceTable = "Manifest Line";
-    UsageCategory = Lists;
-    DelayedInsert = true;
-    AutoSplitKey = true;
-    InsertAllowed = false;
-    //Editable = false;
-    ModifyAllowed = false;
     DeleteAllowed = false;
-    SourceTableView = sorting("Job File Date") order(descending);
+    //Editable = False;
+    SourceTableTemporary = true;
     layout
     {
         area(content)
         {
             repeater(General)
             {
+
                 field("Job File No."; Rec."Job File No.")
                 {
                     ToolTip = 'Specifies the value of the Job File No. field.';
@@ -39,31 +35,39 @@ page 50300 "Manifests New"
                     Visible = true;
                     Editable = false;
                 }
+                field(Selected; Rec.Selected)
+                {
+                    ApplicationArea = all;
+                    Editable = true;
+                }
                 field("Job File Date"; rec."Job File Date")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the value of the Job File Date field.';
+                    Editable = false;
                 }
                 field("BL No."; Rec."BL No.")
                 {
                     ToolTip = 'Specifies the value of the BL No. field.';
                     ApplicationArea = All;
+                    Editable = false;
                 }
                 field("Global Dimension 1 Code"; rec."Global Dimension 1 Code")
                 {
                     ApplicationArea = all;
-                    Editable = ContainerEdit;
+                    Editable = false;
                 }
                 field(Received; rec.Received)
                 {
                     ApplicationArea = all;
-                    Editable = ContainerEdit;
+                    Editable = false;
                 }
+
                 field("Date Received"; Rec."Date Received")
                 {
                     ToolTip = 'Specifies the value of the Date Received field.';
                     ApplicationArea = All;
-                    Editable = ContainerEdit;
+                    Editable = false;
                 }
                 field("Received Time"; rec."Received Time")
                 {
@@ -74,20 +78,21 @@ page 50300 "Manifests New"
                 field(Released; rec.Released)
                 {
                     ApplicationArea = All;
-                    Editable = ContainerEdit;
+                    Editable = false;
                 }
 
                 field("Date Released"; Rec."Date Released")
                 {
                     ToolTip = 'Specifies the value of the Date Released field.';
                     ApplicationArea = All;
-                    Editable = ContainerEdit;
+                    Editable = false;
                 }
 
                 field("Charge ID"; Rec."Charge ID")
                 {
                     ToolTip = 'Specifies the value of the Charge ID field.';
                     ApplicationArea = All;
+                    Editable = false;
                 }
                 field("Global Dimension 2 Code"; Rec."Global Dimension 2 Code")
                 {
@@ -99,11 +104,13 @@ page 50300 "Manifests New"
                 {
                     ToolTip = 'Specifies the value of the Manifested field.';
                     ApplicationArea = All;
+                    Editable = false;
 
                 }
                 field("Consignee No."; rec."Consignee No.")
                 {
                     ApplicationArea = all;
+                    Editable = false;
                 }
                 field("Consignee Name"; Rec."Consignee Name")
                 {
@@ -115,34 +122,39 @@ page 50300 "Manifests New"
                 field("Invoicing Party No."; rec."Invoicing Party No.")
                 {
                     ApplicationArea = All;
+                    Editable = false;
                 }
 
                 field("Clearing Agent"; Rec."Clearing Agent")
                 {
                     ToolTip = 'Specifies the value of the Clearing Agent field.';
                     ApplicationArea = All;
+                    Editable = false;
                 }
                 field("Shortcut Dimension 3 Code"; rec."Shortcut Dimension 3 Code")
                 {
                     ApplicationArea = All;
-                    Editable = SPEditable;
+                    Editable = false;
                 }
                 field("Container Status"; rec."Container Status")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the value of the container Status field.';
                     //Editable = SPEditable;
+                    Editable = false;
                 }
 
                 field("TBL/MH"; Rec."TBL/MH")
                 {
                     ToolTip = 'Specifies the value of the TBL/MH field.';
                     ApplicationArea = All;
+                    Editable = false;
                 }
                 field("Container/Chassis No."; Rec."Container/Chassis No.")
                 {
                     ToolTip = 'Specifies the value of the Container/Chassis No. field.';
                     ApplicationArea = All;
+                    Editable = false;
                 }
 
 
@@ -150,17 +162,20 @@ page 50300 "Manifests New"
                 {
                     ToolTip = 'Specifies the value of the Seal/Engine No. field.';
                     ApplicationArea = All;
+                    Editable = false;
                 }
                 field("Customs Seal No."; Rec."Customs Seal No.")
                 {
                     ToolTip = 'Specifies the value of the Customs Seal No. field.';
                     ApplicationArea = All;
+                    Editable = false;
                 }
 
                 field("Shortcut Dimension 4 Code"; Rec."Shortcut Dimension 4 Code")
                 {
                     ToolTip = 'Specifies the value of the Unit Of Measure field.';
                     ApplicationArea = All;
+                    Editable = false;
                     trigger OnValidate()
                     var
                         myInt: Integer;
@@ -173,24 +188,24 @@ page 50300 "Manifests New"
                 {
                     ToolTip = 'Specifies the value of the Landing date field.';
                     ApplicationArea = All;
-                    Editable = LandingEdit;
+                    Editable = false;
                 }
                 field("Landing Time"; rec."Landing Time")
                 {
                     ToolTip = 'Specifies the value of the Landing Time field.';
                     ApplicationArea = All;
-                    Editable = LandingEdit;
+                    Editable = false;
                 }
                 field(Marks; Rec.Marks)
                 {
                     ToolTip = 'Specifies the value of the Marks field.';
                     ApplicationArea = All;
-                    Editable = MarksEdit;
+                    Editable = false;
                 }
                 field("Parent Container ID"; Rec."Parent Container ID")
                 {
                     ApplicationArea = All;
-                    Editable = ParentEdit;
+                    Editable = false;
 
                     trigger onvalidate()
                     var
@@ -203,112 +218,130 @@ page 50300 "Manifests New"
                 {
                     ToolTip = 'Specifies the value of the Container Type field.';
                     ApplicationArea = All;
+                    Editable = false;
                 }
                 field("Shortcut Dimension 5 Code"; Rec."Shortcut Dimension 5 Code")
                 {
                     ToolTip = 'Specifies the value of the Container Size field.';
                     ApplicationArea = All;
+                    Editable = false;
                 }
                 field("Container lock"; Rec."Container lock")
                 {
                     ToolTip = 'Specifies the value of the Container lock field.';
                     ApplicationArea = All;
-                    Editable = ContainerLockEdit;
+                    Editable = false;
                 }
                 field(Description; Rec.Description)
                 {
                     ToolTip = 'Specifies the value of the Description field.';
                     ApplicationArea = All;
+                    Editable = false;
                 }
                 field("CBM Tonage"; Rec."CBM Tonage")
                 {
                     ToolTip = 'Specifies the value of the CBM Tonage field.';
                     ApplicationArea = All;
+                    Editable = false;
 
                 }
                 field(Weight; Rec.Weight)
                 {
                     ToolTip = 'Specifies the value of the Weight field.';
                     ApplicationArea = All;
+                    Editable = false;
 
                 }
                 field("CBM-Wt Difference"; Rec."CBM-Wt Difference")
                 {
                     ToolTip = 'Specifies the value of the CBM-Wt Difference field.';
                     ApplicationArea = All;
+                    Editable = false;
                 }
 
                 field("Port of Shipment"; Rec."Port of Shipment")
                 {
                     ToolTip = 'Specifies the value of the Port of Shipment field.';
                     ApplicationArea = All;
+                    Editable = false;
                 }
                 field("Port of Discharge"; Rec."Port of Discharge")
                 {
                     ToolTip = 'Specifies the value of the Port of Discharge field.';
                     ApplicationArea = All;
+                    Editable = false;
                 }
                 field("Destination Type"; Rec."Destination Type")
                 {
                     ToolTip = 'Specifies the value of the Destination Type field.';
                     ApplicationArea = All;
+                    Editable = false;
                 }
                 field("Final Destination"; Rec."Final Destination")
                 {
                     ToolTip = 'Specifies the value of the Final Destination field.';
                     ApplicationArea = All;
+                    Editable = false;
                 }
                 field("Allocated Position"; rec."Allocated Position")
                 {
                     ToolTip = 'Specifies the value of the Allocated Position';
                     ApplicationArea = All;
+                    Editable = false;
                 }
 
                 field(Transporter; Rec.Transporter)
                 {
                     ToolTip = 'Specifies the value of the Transporter field.';
                     ApplicationArea = All;
-                    //Editable = false;
+                    Editable = false;
                 }
                 field("Transporter Name"; Rec."Transporter Name")
                 {
                     ToolTip = 'Specifies the value of the Transporter Name field.';
                     ApplicationArea = All;
+                    Editable = false;
                 }
                 field("Driver Name"; Rec."Driver Name")
                 {
                     ToolTip = 'Specifies the value of the Driver Name field.';
                     ApplicationArea = All;
+                    Editable = false;
                 }
                 field("Driver ID"; Rec."Driver ID")
                 {
                     ToolTip = 'Specifies the value of the Driver ID field.';
                     ApplicationArea = All;
+                    Editable = false;
                 }
                 field(Vehicle; Rec.Vehicle)
                 {
                     ToolTip = 'Specifies the value of the Vehicle field.';
                     ApplicationArea = All;
+                    Editable = false;
                 }
                 field("Delivery Order No."; Rec."Delivery Order No.")
                 {
                     ToolTip = 'Specifies the value of the Delivery Order No. field.';
                     ApplicationArea = All;
+                    Editable = false;
                 }
                 field("Received By"; Rec."Received By")
                 {
                     ToolTip = 'Specifies the value of the Received By field.';
                     ApplicationArea = All;
+                    Editable = false;
                 }
                 field(Verified; rec.Verified)
                 {
                     ApplicationArea = all;
-                    Editable = ContainerEdit;
+                    Editable = false;
                 }
                 field("Verification Type"; Rec."Verification Type")
                 {
                     ToolTip = 'Specifies the value of the Verification Type field.';
                     ApplicationArea = All;
+                    Editable = false;
                 }
                 field("Verification Print Date"; Rec."Verification Print Date")
                 {
@@ -333,11 +366,13 @@ page 50300 "Manifests New"
                 {
                     ToolTip = 'Specifies the value of the No. of Bags field.';
                     ApplicationArea = All;
+                    Editable = false;
                 }
                 field("No. of Bags Released"; Rec."No. of Bags Released")
                 {
                     ToolTip = 'Specifies the value of the No. of Bags Released field.';
                     ApplicationArea = All;
+                    Editable = false;
                 }
                 field("Remaining Bags"; Rec."Remaining Bags")
                 {
@@ -348,11 +383,12 @@ page 50300 "Manifests New"
                 field("Custom Entry No."; rec."Custom Entry No.")
                 {
                     ApplicationArea = all;
+                    Editable = false;
                 }
-
                 field("Discharge Date"; rec."Discharge Date")
                 {
                     ApplicationArea = All;
+                    Editable = false;
                 }
                 field("ICDN In-Date"; rec."ICDN In-Date")
                 {
@@ -436,35 +472,12 @@ page 50300 "Manifests New"
                     ToolTip = 'Specifies the value of the Expected Arrival Date field.';
                 }
 
-                field("Seal Tagged?"; rec."Seal Tagged?")
-                {
-                    ApplicationArea = All;
-                }
-                field("Seal Locked?"; rec."Seal Locked?")
-                {
-                    ApplicationArea = All;
-                }
-                field("Lock No."; rec."Lock No.")
-                {
-                    ApplicationArea = All;
-                }
+
                 field("Other remarks"; rec."Other remarks")
                 {
                     ApplicationArea = All;
                 }
                 field(Stripped; Rec.Stripped)
-                {
-                    ApplicationArea = All;
-                }
-                field("Stripping Date"; Rec."Stripping Date")
-                {
-                    ApplicationArea = All;
-                }
-                field("Stripping Time"; Rec."Stripping Time")
-                {
-                    ApplicationArea = All;
-                }
-                field("Stripping Notes"; Rec."Stripping Notes")
                 {
                     ApplicationArea = All;
                 }
@@ -479,12 +492,6 @@ page 50300 "Manifests New"
                 {
                     ToolTip = 'Specifies the value of the KPA Charges Calculated field.';
                     ApplicationArea = All;
-                }
-                field("Cargo Nomination No."; rec."Cargo Nomination No.")
-                {
-                    ApplicationArea = all;
-                    ToolTip = 'Specifies the value of the Cargo Nomination No. field.';
-                    Editable = false;
                 }
             }
         }
@@ -706,6 +713,9 @@ page 50300 "Manifests New"
     Var
 
         SPEditable, ContainerLockEdit, LandingEdit, ContainerEdit, ParentEdit, MarksEdit : Boolean;
+        GPNo: code[20];
+        GatePass: Record "Gate Pass Out";
+
     trigger onopenpage()
     var
         myInt: Integer;
@@ -717,7 +727,45 @@ page 50300 "Manifests New"
         ContainerEdiatable();
         SalesPersonEditable();
         ContainerLockEditable();
+        CheckPayments();
     end;
+    //added for stripped units 24/02/26
+    trigger OnQueryClosePage(CloseAction: Action): Boolean
+    var
+        TempCLE: Record "Manifest Line" temporary;
+    begin
+        if CloseAction in [action::OK, action::LookupOK] then begin
+            if Rec.FINDSET then
+                repeat
+                    TempCLE := Rec;
+                    TempCLE.INSERT;
+                    TempCLE.Modify();
+
+                until Rec.NEXT = 0;
+            GPHead.Reset();
+            GPHead.SetRange("Gate Pass No.", GPNo);
+            if GPHead.FindFirst() then begin
+                GPLine.Reset();
+                GPLine.SetRange("Gate Pass No.", GPHead."Gate Pass No.");
+                if GPLine.FindSet() then begin
+                    if Confirm('Do you want to delete the existing lines?', true) then
+                        GPLine.DeleteAll()
+                    else
+                        exit;
+                end;
+            end;
+
+            If TempCLE.FindSet() then
+                repeat
+                    if TempCLE."Parent Container ID" <> '' then
+                        InsertStrippedGatePassLines(TempCLE);
+                until TempCLE.Next = 0;
+
+
+
+        end;
+    end;
+    //end for stripped units
 
     trigger OnAfterGetRecord()
     var
@@ -786,7 +834,7 @@ page 50300 "Manifests New"
 
     local procedure ContainerEdiatable()
     begin
-        if (UserId = 'GROUP.AUDIT') or (UserId = 'TECHBIZINFOTECH') then
+        if (UserId = 'GROUP.AUDIT') or (UserId = 'TECHBIZINFOTECH') or (UserId = 'SHILLAH') then
             ContainerEdit := true
         else
             ContainerEdit := false;
@@ -832,8 +880,391 @@ page 50300 "Manifests New"
         else
             SPEditable := true;
     end;
+    //for stripped units
+
+
+    procedure GetGPNo(var NewGPNo: Code[20])
+    begin
+        GPNo := NewGPNo;
+    end;
+
+    procedure InsertStrippedGatePassLines(Manifest: record "Manifest Line")
+    var
+        SalesInvHead: Record "Sales Invoice Header";
+        LSalesInvLine, GSalesInvLine, SalesInvLine : Record "Sales Invoice Line";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        ContainerInvLine: Record "Sales Invoice Line";
+        ContainerRec: Record "Dimension Value";
+        GLSetup: Record "General Ledger Setup";
+        GPHead: Record "Gate Pass Out";
+        GPLine, GatePassLine : Record "Gate Pass Out Line";
+        PostedGateOutHead: Record "Posted Gate Pass Out";
+        PostedGateOutLine: Record "Posted Gate Pass out Line";
+        PaymentTerms, PaymentMethod : Code[20];
+        Cust: Record Customer;
+        BaseOn: Enum "Base On Enum";
+        ChargeGroupHead: Record "Charge ID Group Header";
+        ChargeGroupLine: Record "Charge ID Group Line";
+        BilledStorageDays, RemainingDays, CurrentStorageDays, FreeDays, LineNo : Integer;
+        InvoiceCount: Integer;
+        //ManifestHead: Record "Manifest Header";
+        GManifestLine, TestManifestLine : Record "Manifest Line";
+        ClosedCont: Integer;
+        GPCancelled: Boolean;
+        CancelGatePass: Record "Cancel Gatepass";
+
+        StorageStartDate: Date;
+        PrevDocNo, PrevContainerNo : Code[20];
+    begin
+        GPHead.Reset();
+        GPHead.SetRange("Gate Pass No.", GPNo);
+
+        if GPHead.FindFirst() then begin
+            LineNo := 0;
+            InvoiceCount := 0;
+            ClosedCont := 0;
+
+
+
+            // Check if Parent Invoice was paid.
+            SalesInvLine.Reset();
+            SalesInvLine.SetRange("BL No.", GPHead."BL No.");
+            SalesInvLine.CalcFields(Cancelled);
+            SalesInvLine.SetRange(Cancelled, false);
+            if SalesInvLine.FindSet() then begin
+                CustLedgerEntry.Reset();
+                CustLedgerEntry.SetRange("Document No.", SalesInvLine."Document No.");
+                CustLedgerEntry.CalcFields("Remaining Amount");
+                CustLedgerEntry.SetFilter("Remaining Amount", '=%1', 0);
+                if CustLedgerEntry.FindFirst() then begin
+
+                    GPCancelled := false;
+
+                    PostedGateOutLine.Reset();
+                    PostedGateOutLine.SetRange("BL No.", GPHead."BL No.");
+                    PostedGateOutLine.SetRange("Invoice No.", SalesInvLine."Document No.");
+                    PostedGateOutLine.SetRange("Global Dimension 1 Code", Manifest."Global Dimension 1 Code");
+                    PostedGateOutLine.SetRange("Gate Pass Status", PostedGateOutLine."Gate Pass Status"::Active);
+
+                    if PostedGateOutLine.FindFirst() then begin
+                        CancelGatePass.Reset();
+                        CancelGatePass.SetRange("BL No.", GPHead."BL No.");
+                        CancelGatePass.SetRange("Global Dimension 1 Code", Manifest."Global Dimension 1 Code");
+
+                        if CancelGatePass.FindFirst() then
+                            GPCancelled := true
+                        else
+                            Error('Gatepass was Cancelled');
+                    end else
+                        GPCancelled := true;
+
+                    GLSetup.Get();
+
+                    ContainerRec.Reset();
+                    ContainerRec.SetRange("Dimension Code", GLSetup."Global Dimension 1 Code");
+                    ContainerRec.SetRange(Code, Manifest."Parent Container ID");
+                    ContainerRec.SetRange("Container Status", ContainerRec."Container Status"::"In Stock");
+
+                    if ContainerRec.FindFirst() then begin
+
+                        // ===== Extra Storage Calculation =====
+                        LSalesInvLine.Reset();
+                        LSalesInvLine.SetRange("BL No.", GPHead."BL No.");
+
+                        if LSalesInvLine.FindLast() then
+                            if LSalesInvLine."Posting Date" <> Today then begin
+
+                                GSalesInvLine.Reset();
+                                GSalesInvLine.SetCurrentKey("Document No.");
+                                GSalesInvLine.SetRange("Shortcut Dimension 1 Code", Manifest."Parent Container ID");
+                                GSalesInvLine.SetFilter("Chargable Storage Days", '<>%1', 0);
+
+                                if GSalesInvLine.FindFirst() then
+                                    repeat
+                                        if PrevDocNo <> GSalesInvLine."Document No." then
+                                            BilledStorageDays +=
+                                              GSalesInvLine."Storage Days" -
+                                              GSalesInvLine."Free Days";
+
+                                        PrevDocNo := GSalesInvLine."Document No.";
+                                    until GSalesInvLine.Next() = 0;
+
+                                GSalesInvLine.Reset();
+                                GSalesInvLine.SetRange("Shortcut Dimension 1 Code", manifest."Parent Container ID");
+
+                                if GSalesInvLine.FindFirst() then begin
+                                    if ChargeGroupHead.Get(GSalesInvLine."Charge ID") then begin
+                                        BaseOn := ChargeGroupHead."Base On";
+
+                                        ChargeGroupLine.Reset();
+                                        ChargeGroupLine.SetRange("Charge ID Group Code",
+                                                                 ChargeGroupHead."Charge ID Group Code");
+                                        ChargeGroupLine.SetFilter("Free Days", '<>%1', 0);
+
+                                        if ChargeGroupLine.FindFirst() then
+                                            FreeDays := ChargeGroupLine."Free Days"
+                                        else
+                                            FreeDays := 0;
+                                    end;
+
+                                    case BaseOn of
+                                        BaseOn::"Received Date":
+                                            StorageStartDate := Manifest."Date Received";
+                                        BaseOn::"ETA Date":
+                                            StorageStartDate := Manifest."Expected Arrival Date";
+                                        BaseOn::"Last Sling Date":
+                                            StorageStartDate := Manifest."Last Sling Date";
+                                        BaseOn::ActualDate:
+                                            StorageStartDate := Manifest."Vessel Arrival Date";
+                                    end;
+
+                                    if StorageStartDate <> 0D then
+                                        CurrentStorageDays := Today - StorageStartDate;
+                                end;
+
+                                if CurrentStorageDays > FreeDays then begin
+                                    RemainingDays :=
+                                      CurrentStorageDays - FreeDays - BilledStorageDays;
+
+                                    Error(
+                                      'Extra storage days to be billed: Please Contact Audit \' +
+                                      'Total Storage Days %1, Free Days %2, ' +
+                                      'Billed Storage Days %3, Remaining Days %4',
+                                      CurrentStorageDays,
+                                      FreeDays,
+                                      BilledStorageDays,
+                                      RemainingDays);
+                                end;
+                            end;
+
+                        // ===== Additional Checks =====
+                        CheckVerificationCharges(Manifest."Global Dimension 1 Code");
+                        CheckAdditionalCharges(Manifest."Global Dimension 1 Code");
+
+                        // ===== Insert Gate Pass Line =====
+                        GatePassLine.Reset();
+                        GatePassLine.SetRange("Gate Pass No.", GPHead."Gate Pass No.");
+
+                        if GatePassLine.FindLast() then
+                            LineNo := GatePassLine."Line No." + 10000;
+
+                        GatePassLine.Init();
+                        GatePassLine."Gate Pass No." := GPHead."Gate Pass No.";
+                        GatePassLine."Line No." := LineNo;
+                        GatePassLine.Insert();
+
+                        GatePassLine."Invoice No." := SalesInvLine."Document No.";
+                        GatePassLine."Global Dimension 1 Code" := Manifest."Global Dimension 1 Code";
+                        GatePassLine."Global Dimension 2 Code" := Manifest."Global Dimension 2 Code";
+                        GatePassLine."Shortcut Dimension 3 Code" := Manifest."Shortcut Dimension 3 Code";
+                        GatePassLine."Shortcut Dimension 4 Code" := Manifest."Shortcut Dimension 4 Code";
+                        GatePassLine."Shortcut Dimension 5 Code" := Manifest."Shortcut Dimension 5 Code";
+                        GatePassLine."Shortcut Dimension 6 Code" := Manifest."Shortcut Dimension 6 Code";
+                        GatePassLine."Job File No" := Manifest."Job File No.";
+                        GatePassLine."Container /Chasis No." := Manifest."Container/Chassis No.";
+                        GatePassLine."Position ID" := SalesInvLine."Position ID";
+                        GatePassLine."BL No" := Manifest."BL No.";
+                        GatePassLine."Invoice Date" := SalesInvLine."Posting Date";
+                        GatePassLine."Consignee No." := SalesInvLine."Sell-to Customer No.";
+                        GatePassLine."Gen. Bus. Posting Group" := SalesInvLine."Gen. Bus. Posting Group";
+                        GatePassLine."Gen. Prod. Posting Group" := SalesInvLine."Gen. Prod. Posting Group";
+                        GatePassLine."Activity Date" := GPHead."Activity Date";
+                        GatePassLine."Activity Time" := GPHead."Activity Time";
+
+                        if Cust.Get(SalesInvLine."Sell-to Customer No.") then
+                            GatePassLine."Consignee Name" := Cust.Name;
+
+                        GatePassLine.Modify();
+
+                        InvoiceCount += 1;
+                        PrevContainerNo := SalesInvLine."Shortcut Dimension 1 Code";
+                    end;
+                    GetReceiptNo();
+                end else
+                    Error('Parent Invoice has not been Paid.');
+            end else
+                Message('Invoice does not found');
+        end;
+
+    end;
+
+    procedure CheckVerificationCharges(l_ContID: code[20])
+    var
+        VerificationLog: Record VerificationLog;
+    begin
+        VerificationLog.Reset();
+        VerificationLog.SetRange("Global Dimension 1 Code", l_ContID);
+        VerificationLog.SetRange(Invoiced, false);
+        if VerificationLog.FindFirst() then begin
+            if VerificationLog."Verification Type" <> VerificationLog."Verification Type"::Sighting then
+                Error('Unbilled verification Charges found. Please check and try again');
+        end;
+    end;
+
+    procedure CheckAdditionalCharges(l_ContID: code[20])
+    var
+        SalesInvHead: Record "Sales Invoice Header";
+        LSalesInvLine, GSalesInvLine, SalesInvLine : Record "Sales Invoice Line";
+        ContainerInvLine: Record "Sales Invoice Line";
+        ContainerRec: Record "Dimension Value";
+        GLSetup: Record "General Ledger Setup";
+        Cust: Record Customer;
+        AddCharge: Record "Additional Charges - Receiving";
+        InvoiceCount: Integer;
+        // ManifestHead: Record "Manifest Header";
+        GManifestLine, TestManifestLine : Record "Manifest Line";
+        ClosedCont: Integer;
+        PrevDocNo, PrevContainerNo : Code[20];
+    begin
+
+        InvoiceCount := 0;
+        ClosedCont := 0;
+        AddCharge.Reset();
+        AddCharge.SetRange(AddCharge."Container ID", l_ContID);
+        AddCharge.SetFilter("Charges Code", '<>%1', '');
+        if AddCharge.FindFirst() then begin
+            repeat
+                SalesInvLine.Reset();
+                SalesInvLine.SetCurrentKey("Shortcut Dimension 1 Code");
+                SalesInvLine.SetAscending("Shortcut Dimension 1 Code", true);
+                SalesInvLine.SetRange("Shortcut Dimension 1 Code", AddCharge."Container ID");
+                SalesInvLine.SetRange(Type, SalesInvLine.Type::Item);
+                SalesInvLine.SetRange("No.", AddCharge."Charges Code");
+                SalesInvLine.CalcFields(Cancelled);
+                SalesInvLine.SetRange(Cancelled, false);
+                if not SalesInvLine.FindFirst() then
+                    Error('Additional charges not billed for the Container ID %1. Please check and try again', AddCharge."Container ID");
+            until AddCharge.Next() = 0;
+        end;
+    end;
+
+
+    procedure SetTempManifest(var TempManifest: Record "Manifest Line" temporary)
+    begin
+        Rec.DeleteAll();
+        Rec.Copy(TempManifest, true);
+
+    end;
+
+    procedure CheckPayments()
+    var
+
+        SalesInvLine: Record "Sales Invoice Line";
+        EntryNo, LineNo : Integer;
+        TempCustLedgEntry: Record "Cust. Ledger Entry" temporary;
+        RecCustLedgEntry: Record "Cust. Ledger Entry";
+        PageInvoiceStatus: Page InvoiceStatusList;
+        PrevDocNo, PrevContainerNo : Code[20];
+        ManifestLine: Record "Manifest Line";
+        ManifestLookup: Page "Manifest lookup";
+        TempSelectedContainers: record "Manifest Line" temporary;
+
+    begin
+
+        If GatePass.get(GPNo) then begin
+            if GatePass."Shortcut Dimension 6 Code" <> 'EMPTY CONTAINER' then begin
+                // ManifestLine.Reset();
+                // ManifestLine.SetRange("Shortcut Dimension 6 Code", GatePass."Shortcut Dimension 6 Code");
+                // if ManifestLine.FindSet() then begin
+                //     repeat
+                //         LineNo := GetLastTempLineNo(Rec);
+                //         Rec.init();
+                //         Rec."Line No." := LineNo + 1000;
+                //         Rec."Global Dimension 1 Code" := ManifestLine."Global Dimension 1 Code";
+                //         Rec."Global Dimension 2 Code" := ManifestLine."Global Dimension 2 Code";
+                //         Rec."Shortcut Dimension 3 Code" := ManifestLine."Shortcut Dimension 3 Code";
+                //         Rec."Shortcut Dimension 4 Code" := ManifestLine."Shortcut Dimension 4 Code";
+                //         Rec."Shortcut Dimension 5 Code" := ManifestLine."Shortcut Dimension 5 Code";
+                //         Rec."Shortcut Dimension 6 Code" := ManifestLine."Shortcut Dimension 6 Code";
+                //         Rec."Job File No." := ManifestLine."Job File No.";
+                //         Rec."BL No." := ManifestLine."BL No.";
+                //         Rec."Parent Container ID" := ManifestLine."Parent Container ID";
+                //         Rec."Container/Chassis No." := ManifestLine."Container/Chassis No.";
+
+                //         Rec.Insert();
+                //     until ManifestLine.Next() = 0;
+                // end;
+                //end;
+
+                SalesInvLine.Reset();
+                SalesInvLine.SetRange("BL No.", GatePass."BL No.");
+                SalesInvLine.CalcFields(Cancelled);
+                SalesInvLine.SetRange(Cancelled, false);
+                if SalesInvLine.FindSet() then begin
+                    //Adding the stripped units flow for ones with the parent id
+                    ManifestLine.Reset();
+                    ManifestLine.SetRange("BL No.", SalesInvLine."BL No.");
+                    ManifestLine.SetFilter("Parent Container ID", '<>%1', '');
+                    if ManifestLine.FindSet() then begin
+                        repeat
+                            Rec.init();
+                            Rec."Global Dimension 1 Code" := ManifestLine."Global Dimension 1 Code";
+                            Rec."Global Dimension 2 Code" := ManifestLine."Global Dimension 2 Code";
+                            Rec."Shortcut Dimension 3 Code" := ManifestLine."Shortcut Dimension 3 Code";
+                            Rec."Shortcut Dimension 4 Code" := ManifestLine."Shortcut Dimension 4 Code";
+                            Rec."Shortcut Dimension 5 Code" := ManifestLine."Shortcut Dimension 5 Code";
+                            Rec."Shortcut Dimension 6 Code" := ManifestLine."Shortcut Dimension 6 Code";
+                            Rec."Job File No." := ManifestLine."Job File No.";
+                            Rec."BL No." := ManifestLine."BL No.";
+                            Rec."Parent Container ID" := ManifestLine."Parent Container ID";
+                            Rec."Container/Chassis No." := ManifestLine."Container/Chassis No.";
+                            Rec.Insert();
+                        until ManifestLine.Next() = 0;
+                    end;
+                end else
+                    Message('Invoice  not found');
+
+            End;
+        end;
+    End;
+
+
+    procedure GetLastTempLineNo(var TempTable: Record "Manifest Line" temporary) LineNo: Integer
+    begin
+        // Set the current key so FindLast() sorts by Line No
+        TempTable.SetCurrentKey("Line No.");
+
+        if TempTable.FindLast() then
+            exit(TempTable."Line No.")
+        else
+            exit(0);
+    end;
+
+    procedure GetReceiptNo()
+    var
+        CustLedgEntry: Record "Cust. Ledger Entry";
+        ApplyCustLedgEntry: Record "Cust. Ledger Entry";
+        GatePassLineRec: Record "Gate Pass Out Line";
+    begin
+        GatePassLineRec.Reset();
+        GatePassLineRec.SetRange("Gate Pass No.", GPNo);
+        if GatePassLineRec.FindSet() then begin
+            repeat
+                CustLedgEntry.Reset();
+                CustLedgEntry.SetRange("Document No.", GatePassLineRec."Invoice No.");
+                CustLedgEntry.SetRange(Open, false);
+                IF CustLedgEntry.FindFirst() then begin
+                    ApplyCustLedgEntry.Reset();
+                    ApplyCustLedgEntry.SetRange("Entry No.", CustLedgEntry."Closed by Entry No.");
+                    if ApplyCustLedgEntry.FindFirst() then begin
+                        GatePassLineRec."Receipt No." := ApplyCustLedgEntry."Document No.";
+                        GatePassLineRec.Modify();
+                    end;
+                end else begin
+                    Message('receipt not found');
+                    exit;
+                end;
+            //exit;
+            until GatePassLineRec.next = 0;
+        end;
+    end;
+
+    var
+        GPHead: Record "Gate Pass Out";
+        GPLine, GatePassLine : Record "Gate Pass Out Line";
+
+
 
 
 }
-
 

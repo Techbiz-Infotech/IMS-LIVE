@@ -365,7 +365,7 @@ page 50134 "CS Role Center"
                     //Promoted = true;
                     //PromotedCategory = Process;
                     RunObject = Page "Manifest List";
-                    
+
                 }
                 action(ManifestLines)
                 {
@@ -374,7 +374,7 @@ page 50134 "CS Role Center"
                     //Promoted = true;
                     //PromotedCategory = Process;
                     RunObject = Page "Manifests New";
-                   // RunObject = Page "Manifest Lines";
+                    // RunObject = Page "Manifest Lines";
                 }
             }
             group(Receiving)
@@ -525,6 +525,14 @@ page 50134 "CS Role Center"
                     //PromotedCategory = Process;
                     RunObject = Page "Gate Pass Outs";
                 }
+                action(EmptyGatepass)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Empty Container Gatepass';
+
+                    RunObject = Page "Empty Container Gatepass List";
+                }
+
                 action(PendingGPO)
                 {
                     ApplicationArea = Basic, Suite;

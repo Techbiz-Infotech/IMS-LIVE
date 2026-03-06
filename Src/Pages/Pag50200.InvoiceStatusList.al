@@ -278,19 +278,19 @@ page 50200 InvoiceStatusList
                                             // ManifestHead.Reset();
                                             // ManifestHead.SetRange("Job File No.", GSalesInvLine."Job File No.");
                                             // IF ManifestHead.FindFirst() then begin
-                                                if BaseOn = BaseOn::"Received Date" then begin
-                                                    TestManifestLine.Reset();
-                                                    TestManifestLine.SetRange("Global Dimension 1 Code", GSalesInvLine."Shortcut Dimension 1 Code");
-                                                    IF TestManifestLine.FindFirst() then begin
-                                                        StorageStartDate := TestManifestLine."Date Received"
-                                                    end;
+                                            if BaseOn = BaseOn::"Received Date" then begin
+                                                TestManifestLine.Reset();
+                                                TestManifestLine.SetRange("Global Dimension 1 Code", GSalesInvLine."Shortcut Dimension 1 Code");
+                                                IF TestManifestLine.FindFirst() then begin
+                                                    StorageStartDate := TestManifestLine."Date Received"
                                                 end;
-                                                IF BaseOn = BaseOn::"ETA Date" then
-                                                    StorageStartDate := TestManifestLine."Expected Arrival Date";
-                                                IF BaseOn = BaseOn::"Last Sling Date" then
-                                                    StorageStartDate := TestManifestLine."Last Sling Date";
-                                                IF BaseOn = BaseOn::ActualDate then
-                                                    StorageStartDate := TestManifestLine."Vessel Arrival Date";
+                                            end;
+                                            IF BaseOn = BaseOn::"ETA Date" then
+                                                StorageStartDate := TestManifestLine."Expected Arrival Date";
+                                            IF BaseOn = BaseOn::"Last Sling Date" then
+                                                StorageStartDate := TestManifestLine."Last Sling Date";
+                                            IF BaseOn = BaseOn::ActualDate then
+                                                StorageStartDate := TestManifestLine."Vessel Arrival Date";
                                             //end;
                                             // IF StorageStartDate <> 0D then begin
                                             //     IF ChargeGroupHead."Start After" > 1 then
@@ -427,7 +427,7 @@ page 50200 InvoiceStatusList
         Cust: Record Customer;
         AddCharge: Record "Additional Charges - Receiving";
         InvoiceCount: Integer;
-       // ManifestHead: Record "Manifest Header";
+        // ManifestHead: Record "Manifest Header";
         GManifestLine, TestManifestLine : Record "Manifest Line";
         ClosedCont: Integer;
         PrevDocNo, PrevContainerNo : Code[20];

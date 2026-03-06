@@ -260,6 +260,7 @@ page 50147 "Receiving Journal"
                         ReceivingLog.SetRange("Global Dimension 1 Code", Rec."Global Dimension 1 Code");
                         IF ReceivingLog.FindFirst() then
                             report.RunModal(report::"Receiving Log", true, true, ReceivingLog);
+                        Rec.SetRange("User ID", USERID);
                         rec.DeleteAll();
                     end else
                         exit;
@@ -272,7 +273,7 @@ page 50147 "Receiving Journal"
     var
         ContainerNo: code[20];
         ReceivingLog: Record ReceivingLog;
-        //ManiHead: Record "Manifest Header";
+    //ManiHead: Record "Manifest Header";
 
     procedure GetManifestLineInfo()
     var
@@ -281,6 +282,7 @@ page 50147 "Receiving Journal"
 
         LineNo: Integer;
     begin
+        Rec.SetRange("User ID", USERID);
         rec.DeleteAll();
         ManifestLineRec.Reset();
         ManifestLineRec.SetRange(ManifestLineRec."Global Dimension 1 Code", ContainerNo);
@@ -294,6 +296,7 @@ page 50147 "Receiving Journal"
             repeat
                 rec.Init();
                 rec."Line No." := LineNo;
+                rec."User ID" := USERID;
                 Rec.Insert();
                 rec.validate("BL No.", ManifestLineRec."BL No.");
                 rec.validate("Container No./Chassis No.", ManifestLineRec."Container/Chassis No.");
@@ -317,6 +320,7 @@ page 50147 "Receiving Journal"
         ManifestLineRec: Record "Manifest Line";
     begin
         ReceiveRec.Reset;
+        ReceiveRec.SetRange("User ID", USERID);
         ReceiveRec.SetRange(Recieived, true);
         IF ReceiveRec.findfirst then
             repeat
@@ -371,6 +375,7 @@ page 50147 "Receiving Journal"
             EntryNo := 1;
         ReceiveJourRec := Rec;
         ReceiveJourRec.Reset();
+        ReceiveJourRec.SetRange("User ID", USERID);
         ReceiveJourRec.SetRange(Recieived, true);
         IF ReceiveJourRec.Findfirst then
             repeat
@@ -470,7 +475,7 @@ page 50147 "Receiving Journal"
     var
         myInt: Integer;
     begin
-        rec.DeleteAll();
+        Rec.SetRange("User ID", USERID);
     end;
 }
 

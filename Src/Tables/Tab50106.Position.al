@@ -14,7 +14,7 @@ table 50106 Position
             var
 
                 ImsSetup: Record "IMS Setup";
-                NoSeriesMgmt: Codeunit NoSeriesManagement;
+                NoSeriesMgmt: Codeunit "No. Series";
             begin
                 if " Position ID" <> xRec." Position ID" then begin
                     ImsSetup.Get;
@@ -83,27 +83,32 @@ table 50106 Position
     trigger OnInsert()
     var
         ImsSetup: Record "IMS Setup";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeriesMgt: Codeunit "No. Series";
     begin
         Rec."User ID" := UserId;
         if " Position ID" = '' THEN begin
             ImsSetup.Get;
             ImsSetup.TestField(ImsSetup."Position Nos");
-            NoSeriesMgt.InitSeries(ImsSetup."Position Nos", xRec." Position ID", 0D, " Position ID", "No.Series");
+            //NoSeriesMgt.InitSeries(ImsSetup."Position Nos", xRec." Position ID", 0D, " Position ID", "No.Series");
+            "No.Series" := ImsSetup."Position Nos";
+            if NoSeriesMgt.AreRelated(ImsSetup."Position Nos", xRec."No.Series") then
+                "No.Series" := xRec."No.Series";
+            " Position ID" := NoSeriesMgt.GetNextNo("No.Series");
         end;
     end;
+
 
     procedure AssistEdit(PositionRec: Record Position): Boolean
     var
         PositionRec1: Record Position;
         ImsSetup: Record "IMS Setup";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeriesMgt: Codeunit "No. Series";
     begin
         PositionRec1 := Rec;
         ImsSetup.GET;
         ImsSetup.TESTFIELD(ImsSetup."Position Nos");
-        IF NoSeriesMgt.SelectSeries(ImsSetup."Position Nos", PositionRec."No.Series", "No.Series") THEN BEGIN
-            NoSeriesMgt.SetSeries(" Position ID");
+        IF NoSeriesMgt.LookupRelatedNoSeries(ImsSetup."Position Nos", PositionRec."No.Series", "No.Series") THEN BEGIN
+            NoSeriesMgt.GetNextNo(" Position ID");
             Rec := PositionRec1;
             EXIT(TRUE);
         END;

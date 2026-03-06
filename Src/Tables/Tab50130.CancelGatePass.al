@@ -12,7 +12,7 @@ table 50130 "Cancel Gatepass"
             trigger OnValidate()
             var
                 ImsSetup: Record "IMS Setup";
-                NoSeriesMgmt: Codeunit NoSeriesManagement;
+                NoSeriesMgmt: Codeunit "No. Series";
             begin
                 if "Cancel Gatepass No." <> xRec."Cancel GatePass No." then begin
                     ImsSetup.Get;
@@ -65,7 +65,8 @@ table 50130 "Cancel Gatepass"
                         "Clearing Agent Name" := '';
                 end;
             end;
-             trigger OnValidate()
+
+            trigger OnValidate()
             begin
                 if Rec."BL No." = '' then begin
                     rec."Job File No." := '';
@@ -165,7 +166,7 @@ table 50130 "Cancel Gatepass"
             begin
                 ManifestLine.Reset();
                 ManifestLine.SetRange("BL No.", Rec."BL No.");
-                ManifestLine.SetRange(Released,true);
+                ManifestLine.SetRange(Released, true);
                 ManifestLine.FindFirst();
                 IF Page.RunModal(50140, ManifestLine) = Action::LookupOK then begin
                     Rec.validate("Global Dimension 1 Code", ManifestLine."Global Dimension 1 Code");
@@ -278,13 +279,17 @@ table 50130 "Cancel Gatepass"
     trigger OnInsert()
     var
         ImsSetup: Record "IMS Setup";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeriesMgt: Codeunit "No. Series";
     begin
         Rec."User ID" := UserId;
         if "Cancel GatePass No." = '' THEN begin
             ImsSetup.Get;
             ImsSetup.TestField("Cancel Gatepass Nos");
-            NoSeriesMgt.InitSeries(ImsSetup."Cancel Gatepass Nos", xRec."Cancel GatePass No.", 0D, "Cancel GatePass No.", "No.Series");
+            //NoSeriesMgt.InitSeries(ImsSetup."Cancel Gatepass Nos", xRec."Cancel GatePass No.", 0D, "Cancel GatePass No.", "No.Series");
+            "No.Series" := ImsSetup."Cancel Gatepass Nos";
+            if NoSeriesMgt.AreRelated(ImsSetup."Cancel Gatepass Nos", xRec."No.Series") then
+                "No.Series" := xRec."No.Series";
+            "Cancel GatePass No." := NoSeriesMgt.GetNextNo("No.Series");
         end;
         rec."Activity Date" := Today();
         rec."Activity Time" := Time;
@@ -295,14 +300,14 @@ table 50130 "Cancel Gatepass"
     var
         GatePassRec1: Record "Cancel Gatepass";
         ImsSetup: Record "IMS Setup";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeriesMgt: Codeunit "No. Series";
 
     begin
         GatePassRec1 := Rec;
         ImsSetup.GET;
         ImsSetup.TESTFIELD(ImsSetup."Cancel Gatepass Nos");
-        IF NoSeriesMgt.SelectSeries(ImsSetup."Cancel Gatepass Nos", GatePassRec."No.Series", "No.Series") THEN BEGIN
-            NoSeriesMgt.SetSeries("Cancel Gatepass No.");
+        IF NoSeriesMgt.LookupRelatedNoSeries(ImsSetup."Cancel Gatepass Nos", GatePassRec."No.Series", "No.Series") THEN BEGIN
+            NoSeriesMgt.GetNextNo("Cancel Gatepass No.");
             Rec := GatePassRec1;
             EXIT(TRUE);
         END;

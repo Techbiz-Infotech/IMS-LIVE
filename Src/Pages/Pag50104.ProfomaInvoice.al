@@ -1307,8 +1307,8 @@ page 50104 "proforma Invoice"
         IsShipToCountyVisible: Boolean;
 
     protected var
-        ShipToOptions: Option "Default (Sell-to Address)","Alternate Shipping Address","Custom Address";
-        BillToOptions: Option "Default (Customer)","Another Customer","Custom Address";
+        ShipToOptions: Enum "Sales Ship-to Options";
+        BillToOptions: Enum "Sales Bill-to Options";
 
     local procedure ActivateFields()
     begin
@@ -1492,7 +1492,7 @@ page 50104 "proforma Invoice"
 
     procedure UpdateShipToBillToGroupVisibility()
     begin
-        CustomerMgt.CalculateShipToBillToOptions(ShipToOptions, BillToOptions, Rec);
+        CustomerMgt.CalculateShipBillToOptions(ShipToOptions, BillToOptions, Rec);
     end;
 
     [IntegrationEvent(false, false)]
