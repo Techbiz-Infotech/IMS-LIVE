@@ -1,4 +1,4 @@
-pageextension 50200 SalesOrderExt extends "Sales Order"
+pageextension 50200 SalesOrderExt extends "Sales Order List"
 {
     trigger OnOpenPage()
     var

@@ -402,21 +402,21 @@ table 50051 "Import Cargo Nomi Worksheet"
                         ImportWS.Remarks := 'Description does not exist.'
                 end;
 
-                if ImportWS."Port of Discharge" <> '' then begin
-                    Port1.Reset();
-                    Port1.SetRange("Port Code", rec."Port of Discharge");
-                    if not Port1.FindFirst() then begin
-                        if ImportWS.Remarks <> '' then
-                            ImportWS.Remarks := ImportWS.Remarks + ' | ' + 'Port of Discharge does not exist.'
-                        else
-                            ImportWS.Remarks := 'Port of Discharge does not exist.'
-                    end;
-                end else begin
-                    if ImportWS.Remarks <> '' then
-                        ImportWS.Remarks := ImportWS.Remarks + ' | ' + 'Port of Discharge Should not be Empty.'
-                    else
-                        ImportWS.Remarks := 'Port of Discharge Should not be Empty.'
-                end;
+                // if ImportWS."Port of Discharge" <> '' then begin
+                //     Port1.Reset();
+                //     Port1.SetRange("Port Code", rec."Port of Discharge");
+                //     if not Port1.FindFirst() then begin
+                //         if ImportWS.Remarks <> '' then
+                //             ImportWS.Remarks := ImportWS.Remarks + ' | ' + 'Port of Discharge does not exist.'
+                //         else
+                //             ImportWS.Remarks := 'Port of Discharge does not exist.'
+                //     end;
+                // end else begin
+                //     if ImportWS.Remarks <> '' then
+                //         ImportWS.Remarks := ImportWS.Remarks + ' | ' + 'Port of Discharge Should not be Empty.'
+                //     else
+                //         ImportWS.Remarks := 'Port of Discharge Should not be Empty.'
+                // end; this is not manidtory as per client requirement, so commentted by SH 03-06-2026
 
                 if ImportWS."CBM Tonage" = 0 then begin
                     if ImportWS.Remarks <> '' then
@@ -424,21 +424,21 @@ table 50051 "Import Cargo Nomi Worksheet"
                     else
                         ImportWS.Remarks := 'CBM Tonage does not exist.'
                 end;
-                if ImportWS."Port of Shipment" <> '' then begin
-                    Port.Reset();
-                    Port.SetRange("Port Code", rec."Port of Shipment");
-                    if not Port.FindFirst() then begin
-                        if ImportWS.Remarks <> '' then
-                            ImportWS.Remarks := ImportWS.Remarks + ' | ' + 'Port of Shipment does not exist.'
-                        else
-                            ImportWS.Remarks := 'Port of Shipment does not exist.';
-                    end;
-                end else begin
-                    if ImportWS.Remarks <> '' then
-                        ImportWS.Remarks := ImportWS.Remarks + ' | ' + 'Port of Shipment Should not be Empty.'
-                    else
-                        ImportWS.Remarks := 'Port of Shipment Should not be Empty.'
-                end;
+                // if ImportWS."Port of Shipment" <> '' then begin
+                //     Port.Reset();
+                //     Port.SetRange("Port Code", rec."Port of Shipment");
+                //     if not Port.FindFirst() then begin
+                //         if ImportWS.Remarks <> '' then
+                //             ImportWS.Remarks := ImportWS.Remarks + ' | ' + 'Port of Shipment does not exist.'
+                //         else
+                //             ImportWS.Remarks := 'Port of Shipment does not exist.';
+                //     end;
+                // end else begin
+                //     if ImportWS.Remarks <> '' then
+                //         ImportWS.Remarks := ImportWS.Remarks + ' | ' + 'Port of Shipment Should not be Empty.'
+                //     else
+                //         ImportWS.Remarks := 'Port of Shipment Should not be Empty.'
+                // end;this is not manidtory as per client requirement, so commentted by SH 03-06-2026
                 if ImportWS."Destination Type" = '' then begin
                     if ImportWS.Remarks <> '' then
                         ImportWS.Remarks := ImportWS.Remarks + ' | ' + 'Destination Type does not exist.'
