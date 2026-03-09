@@ -146,6 +146,21 @@ tableextension 50105 "Sales Header Ext" extends "Sales Header"
             Caption = 'Warehouse';
             dataclassification = ToBeClassified;
         }
+        field(50224; "Start Date"; date)
+        {
+
+        }
+        field(50225; "End Date"; date)
+        {
+
+        }
+        field(50226; "Shortcut Dimension 6 Code"; Code[20])
+        {
+            CaptionClass = '1,2,6';
+            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(6),
+                                                                  "Dimension Value Type" = CONST(Standard),
+                                                                  Blocked = CONST(false));
+        }
     }
     trigger OnAfterInsert()
     var

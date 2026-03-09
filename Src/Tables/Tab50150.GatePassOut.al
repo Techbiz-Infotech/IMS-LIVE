@@ -454,6 +454,8 @@ table 50150 "Gate Pass Out"
         GatePassLine: record "Gate Pass Out Line";
         GPHead: record "Gate Pass Out";
         LineNo: Integer;
+        SalesInvHead: Record "Sales Invoice Header";
+        SalesInvLine: Record "Sales Invoice Line";
     begin
         GatePassLine.Reset();
         GatePassLine.SetRange("Gate Pass No.", Rec."Gate Pass No.");
@@ -466,8 +468,17 @@ table 50150 "Gate Pass Out"
         GatePassLine."Gate Pass No." := Rec."Gate Pass No.";
         GatePassLine."Line No." := LineNo;
         GatePassLine.Insert();
+        if TempManifest."Parent Container ID" <> '' then begin
+            SalesInvLine.reset;
+            SalesInvLine.SetRange("Shortcut Dimension 1 Code", TempManifest."Parent Container ID");
+            SalesInvLine.SetRange("BL No.", TempManifest."BL No.");
+            if SalesInvLine.FindFirst() then begin
+                GatePassLine."Invoice No." := SalesInvLine."Document No.";
+                GatePassLine."Invoice Date" := SalesInvLine."Posting Date";
+            end;
+        end;
 
-        //GatePassLine."Invoice No." := SalesInvLine."Document No.";
+
         GatePassLine."Global Dimension 1 Code" := TempManifest."Global Dimension 1 Code";
         GatePassLine."Global Dimension 2 Code" := TempManifest."Global Dimension 2 Code";
         GatePassLine."Shortcut Dimension 3 Code" := TempManifest."Shortcut Dimension 3 Code";
@@ -487,6 +498,7 @@ table 50150 "Gate Pass Out"
         GatePassLine."Consignee Name" := TempManifest."Consignee Name";
 
         GatePassLine.Modify();
+        //GetReceiptNo();
 
     end;
     //end of empty container
@@ -519,6 +531,7 @@ table 50150 "Gate Pass Out"
             Overdue := true;
         if not Overdue then begin
             if Customer.Get(rec."Consignee No.") then begin
+
                 //if Customer.Get(CustledgEntry."Customer No.") then begin
                 if Customer."Credit Limit (LCY)" > Customer."Balance (LCY)" then begin
                     Rec.Approved := true;
@@ -580,9 +593,11 @@ table 50150 "Gate Pass Out"
                 ManifestLine.Reset();
                 ManifestLine.SetRange("BL No.", SalesInvLine."BL No.");
                 ManifestLine.SetFilter("Parent Container ID", '<>%1', '');
+                ManifestLine.SetRange(Released, False);
                 if ManifestLine.FindSet() then
                     repeat
                         TempSelectedContainers.init();
+                        //TempSelectedContainers.TransferFields(ManifestLine);
                         TempSelectedContainers."Global Dimension 1 Code" := ManifestLine."Global Dimension 1 Code";
                         TempSelectedContainers."Global Dimension 2 Code" := ManifestLine."Global Dimension 2 Code";
                         TempSelectedContainers."Shortcut Dimension 3 Code" := ManifestLine."Shortcut Dimension 3 Code";
@@ -591,8 +606,12 @@ table 50150 "Gate Pass Out"
                         TempSelectedContainers."Shortcut Dimension 6 Code" := ManifestLine."Shortcut Dimension 6 Code";
                         TempSelectedContainers."Job File No." := ManifestLine."Job File No.";
                         TempSelectedContainers."BL No." := ManifestLine."BL No.";
+                        TempSelectedContainers."Consignee No." := ManifestLine."Consignee No.";
+                        TempSelectedContainers."Consignee Name" := ManifestLine."Consignee Name";
                         TempSelectedContainers."Parent Container ID" := ManifestLine."Parent Container ID";
                         TempSelectedContainers."Container/Chassis No." := ManifestLine."Container/Chassis No.";
+                        TempSelectedContainers."Line No." := ManifestLine."Line No.";
+
                         TempSelectedContainers.Insert();
                     until ManifestLine.Next() = 0;
                 clear(ManifestLookup);

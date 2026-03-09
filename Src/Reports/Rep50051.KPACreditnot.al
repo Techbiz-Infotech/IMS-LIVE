@@ -376,7 +376,7 @@ report 50051 "KPA Payment CRInvoice report"
             PurchaseInvLine9.SetRange("IMS Item Category Code", IMSSetup."Category Code Wharfage")
         end;
         if PurchaseInvLine9.FindFirst() then begin
-            repeat
+                        repeat
                 wharfageSum += PurchaseInvLine9."Unit Cost";
             until PurchaseInvLine9.Next() = 0;
         end;

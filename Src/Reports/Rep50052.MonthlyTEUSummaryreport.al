@@ -5,11 +5,15 @@ report 50052 "Monthly TEU Summary report"
     Caption = 'TEU Monthly Sales Analysis';
     ProcessingOnly = true;
 
-    dataset { }
+    dataset
+    {
+
+    }
 
     requestpage
     {
         SaveValues = true;
+
         layout
         {
             area(Content)
@@ -56,19 +60,26 @@ report 50052 "Monthly TEU Summary report"
         BuildMonths();
         ExcelBuf.CreateNewBook('Customer Analysis');
 
-        Clear(CustomerList); Clear(CustomerMatrix); Clear(CustomerSales);
+        Clear(CustomerList);
+        Clear(CustomerMatrix);
+        Clear(CustomerSales);
         BuildCustomerData();
         CreateCustomerSheet();
         ExcelBuf.WriteSheet('Customer Analysis', CompanyName, UserId);
-        ExcelBuf.DeleteAll(); ExcelBuf.ClearNewRow();
+        ExcelBuf.DeleteAll();
+        ExcelBuf.ClearNewRow();
 
-        Clear(ClearingAgentList); Clear(AgentMatrix); Clear(AgentSales);
+        Clear(ClearingAgentList);
+        Clear(AgentMatrix);
+        Clear(AgentSales);
         BuildAgentData();
         CreateAgentSheet();
         ExcelBuf.WriteSheet('Clearing Agent Analysis', CompanyName, UserId);
-        ExcelBuf.DeleteAll(); ExcelBuf.ClearNewRow();
+        ExcelBuf.DeleteAll();
+        ExcelBuf.ClearNewRow();
 
-        Clear(SalesPersonList); Clear(SalesMatrix);
+        Clear(SalesPersonList);
+        Clear(SalesMatrix);
         BuildSalesData();
         CreateSalesSheet();
         ExcelBuf.WriteSheet('Salesperson Analysis', CompanyName, UserId);
@@ -154,11 +165,14 @@ report 50052 "Monthly TEU Summary report"
     // ---------------- MATRIX ----------------
 
     local procedure AddToCustomerMatrix(Cust: Code[100]; MonthTxt: Text; Weight: Decimal; Sales: Code[100])
-    var RowDict: Dictionary of [Text, Decimal]; Val: Decimal;
+    var
+        RowDict: Dictionary of [Text, Decimal];
+        Val: Decimal;
     begin
         if not CustomerList.Contains(Cust) then CustomerList.Add(Cust);
         if not CustomerMatrix.Get(Cust, RowDict) then begin
-            Clear(RowDict); CustomerMatrix.Add(Cust, RowDict);
+            Clear(RowDict);
+            CustomerMatrix.Add(Cust, RowDict);
         end;
 
         if RowDict.Get(MonthTxt, Val) then Val += Weight else Val := Weight;
@@ -169,11 +183,14 @@ report 50052 "Monthly TEU Summary report"
     end;
 
     local procedure AddToAgentMatrix(Agent: Code[100]; MonthTxt: Text; Weight: Decimal; Sales: Code[100])
-    var RowDict: Dictionary of [Text, Decimal]; Val: Decimal;
+    var
+        RowDict: Dictionary of [Text, Decimal];
+        Val: Decimal;
     begin
         if not ClearingAgentList.Contains(Agent) then ClearingAgentList.Add(Agent);
         if not AgentMatrix.Get(Agent, RowDict) then begin
-            Clear(RowDict); AgentMatrix.Add(Agent, RowDict);
+            Clear(RowDict);
+            AgentMatrix.Add(Agent, RowDict);
         end;
 
         if RowDict.Get(MonthTxt, Val) then Val += Weight else Val := Weight;
@@ -184,11 +201,14 @@ report 50052 "Monthly TEU Summary report"
     end;
 
     local procedure AddToSalesMatrix(Sales: Code[100]; MonthTxt: Text; Weight: Decimal)
-    var RowDict: Dictionary of [Text, Decimal]; Val: Decimal;
+    var
+        RowDict: Dictionary of [Text, Decimal];
+        Val: Decimal;
     begin
         if not SalesPersonList.Contains(Sales) then SalesPersonList.Add(Sales);
         if not SalesMatrix.Get(Sales, RowDict) then begin
-            Clear(RowDict); SalesMatrix.Add(Sales, RowDict);
+            Clear(RowDict);
+            SalesMatrix.Add(Sales, RowDict);
         end;
 
         if RowDict.Get(MonthTxt, Val) then Val += Weight else Val := Weight;
@@ -198,7 +218,11 @@ report 50052 "Monthly TEU Summary report"
     // ---------------- SHEETS ----------------
 
     local procedure CreateCustomerSheet()
-    var Customer: Code[100]; MonthTxt: Text; RowDict: Dictionary of [Text, Decimal]; Val, Total: Decimal; Sales: Code[100];
+    var
+        Customer: Code[100];
+        MonthTxt: Text;
+        RowDict: Dictionary of [Text, Decimal];
+        Val, Total : Decimal; Sales: Code[100];
     begin
         ExcelBuf.SelectOrAddSheet('Customer Analysis');
 
@@ -230,7 +254,11 @@ report 50052 "Monthly TEU Summary report"
     end;
 
     local procedure CreateAgentSheet()
-    var Agent: Code[100]; MonthTxt: Text; RowDict: Dictionary of [Text, Decimal]; Val, Total: Decimal; Sales: Code[100];
+    var
+        Agent: Code[100];
+        MonthTxt: Text;
+        RowDict: Dictionary of [Text, Decimal];
+        Val, Total : Decimal; Sales: Code[100];
     begin
         ExcelBuf.SelectOrAddSheet('Clearing Agent Analysis');
 
@@ -262,7 +290,11 @@ report 50052 "Monthly TEU Summary report"
     end;
 
     local procedure CreateSalesSheet()
-    var Sales: Code[100]; MonthTxt: Text; RowDict: Dictionary of [Text, Decimal]; Val, Total: Decimal;
+    var
+        Sales: Code[100];
+        MonthTxt: Text;
+        RowDict: Dictionary of [Text, Decimal];
+        Val, Total : Decimal;
     begin
         ExcelBuf.SelectOrAddSheet('Salesperson Analysis');
 
