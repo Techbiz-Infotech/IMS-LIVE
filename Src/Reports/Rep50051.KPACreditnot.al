@@ -164,7 +164,7 @@ report 50051 "KPA Payment CRInvoice report"
     local procedure ProcessInvoiceRecord()
     begin
         //ClearVars();
-
+        IMSSetup.Get();
         // Exchange Rate and Amount Calculations
         Clear(RateExh);
         Clear(AmountKSH);
@@ -253,7 +253,8 @@ report 50051 "KPA Payment CRInvoice report"
         PurchaseInvLine3.Reset();
         PurchaseInvLine3.SetRange("Document No.", "Purch. Inv. Header"."No.");
         PurchaseInvLine3.SetRange("Posting Date", "Purch. Inv. Header"."Posting Date");
-        PurchaseInvLine3.SetRange("Item Category Code", 'SHOREHANDLING');
+        //PurchaseInvLine3.SetRange("Item Category Code", 'SHOREHANDLING');
+        PurchaseInvLine3.SetRange("Item Category Code", IMSSetup."Category for Shorehandling");
         if PurchaseInvLine3.FindFirst() then begin
             repeat
                 DimensionSetEntry.Reset();
@@ -265,31 +266,13 @@ report 50051 "KPA Payment CRInvoice report"
                 end;
             until PurchaseInvLine3.Next() = 0;
         end;
-
-        // Wharfage 20FT Calculation
-        Clear(Wharfage20Ft);
-        PurchaseInvLine5.Reset();
-        PurchaseInvLine5.SetRange("Document No.", "Purch. Inv. Header"."No.");
-        PurchaseInvLine5.SetRange("Posting Date", "Purch. Inv. Header"."Posting Date");
-        PurchaseInvLine5.SetRange("Item Category Code", 'WHARFAGE');
-        if PurchaseInvLine5.FindFirst() then begin
-            repeat
-                DimensionSetEntry.Reset();
-                DimensionSetEntry.SetRange("Dimension Set ID", PurchaseInvLine5."Dimension Set ID");
-                DimensionSetEntry.SetRange("Dimension Code", 'CONTAINER SIZE');
-                DimensionSetEntry.SetRange("Dimension Value Code", '20FT');
-                if DimensionSetEntry.FindSet() then begin
-                    Wharfage20Ft += PurchaseInvLine5."Unit Cost";
-                end;
-            until PurchaseInvLine5.Next() = 0;
-        end;
-
         // CFShandling 40FT Calculation
         Clear(CFShandlingCharges40FT);
         PurchaseInvLine4.Reset();
         PurchaseInvLine4.SetRange("Document No.", "Purch. Inv. Header"."No.");
         PurchaseInvLine4.SetRange("Posting Date", "Purch. Inv. Header"."Posting Date");
-        PurchaseInvLine4.SetRange("Item Category Code", 'SHOREHANDLING');
+        // PurchaseInvLine4.SetRange("Item Category Code", 'SHOREHANDLING');
+        PurchaseInvLine4.SetRange("Item Category Code", IMSSetup."Category for Shorehandling");
         if PurchaseInvLine4.FindFirst() then begin
             repeat
                 DimensionSetEntry.Reset();
@@ -302,12 +285,43 @@ report 50051 "KPA Payment CRInvoice report"
             until PurchaseInvLine4.Next() = 0;
         end;
 
+        // Wharfage 20FT Calculation
+        Clear(Wharfage20Ft);
+        PurchaseInvLine5.Reset();
+        PurchaseInvLine5.SetRange("Document No.", "Purch. Inv. Header"."No.");
+        PurchaseInvLine5.SetRange("Posting Date", "Purch. Inv. Header"."Posting Date");
+        PurchaseInvLine5.CalcFields("IMS Item Category Code");
+        if PurchaseInvLine5."Item Category Code" <> '' then
+            PurchaseInvLine5.SetRange("Item Category Code", IMSSetup."Category Code Wharfage")
+        else begin
+            PurchaseInvLine5.SetRange("IMS Item Category Code", IMSSetup."Category Code Wharfage")
+        end;
+        if PurchaseInvLine5.FindFirst() then begin
+            repeat
+                DimensionSetEntry.Reset();
+                DimensionSetEntry.SetRange("Dimension Set ID", PurchaseInvLine5."Dimension Set ID");
+                DimensionSetEntry.SetRange("Dimension Code", 'CONTAINER SIZE');
+                DimensionSetEntry.SetRange("Dimension Value Code", '20FT');
+                if DimensionSetEntry.FindSet() then begin
+                    Wharfage20Ft += PurchaseInvLine5."Unit Cost";
+                end;
+            until PurchaseInvLine5.Next() = 0;
+        end;
+
+
+
         // Wharfage 40FT Calculation
         Clear(Wharfage40Ft);
         PurchaseInvLine6.Reset();
         PurchaseInvLine6.SetRange("Document No.", "Purch. Inv. Header"."No.");
         PurchaseInvLine6.SetRange("Posting Date", "Purch. Inv. Header"."Posting Date");
-        PurchaseInvLine6.SetRange("Item Category Code", 'WHARFAGE');
+        //PurchaseInvLine6.SetRange("Item Category Code", 'WHARFAGE');
+        PurchaseInvLine6.CalcFields("IMS Item Category Code");
+        if PurchaseInvLine6."Item Category Code" <> '' then
+            PurchaseInvLine6.SetRange("Item Category Code", IMSSetup."Category Code Wharfage")
+        else begin
+            PurchaseInvLine6.SetRange("IMS Item Category Code", IMSSetup."Category Code Wharfage")
+        end;
         if PurchaseInvLine6.FindFirst() then begin
             repeat
                 DimensionSetEntry.Reset();
@@ -342,16 +356,11 @@ report 50051 "KPA Payment CRInvoice report"
         PurchaseInvLine8.Reset();
         PurchaseInvLine8.SetRange("Document No.", "Purch. Inv. Header"."No.");
         PurchaseInvLine8.SetRange("Posting Date", "Purch. Inv. Header"."Posting Date");
-        PurchaseInvLine8.SetRange("Item Category Code", 'SHOREHANDLING');
+        //PurchaseInvLine8.SetRange("Item Category Code", 'SHOREHANDLING');
+        PurchaseInvLine8.SetRange("Item Category Code", IMSSetup."Category for Shorehandling");
         if PurchaseInvLine8.FindFirst() then begin
             repeat
-                DimensionSetEntry.Reset();
-                DimensionSetEntry.SetRange("Dimension Set ID", PurchaseInvLine8."Dimension Set ID");
-                DimensionSetEntry.SetRange("Dimension Code", 'CARGO TYPE');
-                DimensionSetEntry.SetRange("Dimension Value Code", 'CONTAINER');
-                if DimensionSetEntry.FindSet() then begin
-                    ShorehandlingSum += PurchaseInvLine8."Unit Cost";
-                end;
+                ShorehandlingSum += PurchaseInvLine8."Unit Cost";
             until PurchaseInvLine8.Next() = 0;
         end;
 
@@ -360,22 +369,15 @@ report 50051 "KPA Payment CRInvoice report"
         PurchaseInvLine9.Reset();
         PurchaseInvLine9.SetRange("Document No.", "Purch. Inv. Header"."No.");
         PurchaseInvLine9.SetRange("Posting Date", "Purch. Inv. Header"."Posting Date");
+        PurchaseInvLine9.CalcFields("IMS Item Category Code");
         if PurchaseInvLine9."Item Category Code" <> '' then
             PurchaseInvLine9.SetRange("Item Category Code", IMSSetup."Category Code Wharfage")
         else begin
-           // PurchaseInvLine9.SetRange(" IMS Item Category Code", IMSSetup."Category Code Wharfage")
+            PurchaseInvLine9.SetRange("IMS Item Category Code", IMSSetup."Category Code Wharfage")
         end;
-
-
         if PurchaseInvLine9.FindFirst() then begin
-            repeat
-                DimensionSetEntry.Reset();
-                DimensionSetEntry.SetRange("Dimension Set ID", PurchaseInvLine9."Dimension Set ID");
-                DimensionSetEntry.SetRange("Dimension Code", 'CARGO TYPE');
-                DimensionSetEntry.SetRange("Dimension Value Code", 'CONTAINER');
-                if DimensionSetEntry.FindSet() then begin
-                    wharfageSum += PurchaseInvLine9."Unit Cost";
-                end;
+                        repeat
+                wharfageSum += PurchaseInvLine9."Unit Cost";
             until PurchaseInvLine9.Next() = 0;
         end;
 
@@ -387,13 +389,7 @@ report 50051 "KPA Payment CRInvoice report"
         PurchaseInvLine10.SetRange("Item Category Code", 'REMARSHALLING');
         if PurchaseInvLine10.FindFirst() then begin
             repeat
-                DimensionSetEntry.Reset();
-                DimensionSetEntry.SetRange("Dimension Set ID", PurchaseInvLine10."Dimension Set ID");
-                DimensionSetEntry.SetRange("Dimension Code", 'CARGO TYPE');
-                DimensionSetEntry.SetRange("Dimension Value Code", 'CONTAINER');
-                if DimensionSetEntry.FindSet() then begin
-                    RemarshallingSum += PurchaseInvLine10."Unit Cost";
-                end;
+                RemarshallingSum += PurchaseInvLine10."Unit Cost";
             until PurchaseInvLine10.Next() = 0;
         end;
 
@@ -402,16 +398,11 @@ report 50051 "KPA Payment CRInvoice report"
         PurchaseInvLine11.Reset();
         PurchaseInvLine11.SetRange("Document No.", "Purch. Inv. Header"."No.");
         PurchaseInvLine11.SetRange("Posting Date", "Purch. Inv. Header"."Posting Date");
-        PurchaseInvLine11.SetRange("Item Category Code", 'STORAGE');
+        //PurchaseInvLine11.SetRange("Item Category Code", 'STORAGE');
+        PurchaseInvLine11.SetRange("Item Category Code", IMSSetup."Category Code for Storage");
         if PurchaseInvLine11.FindFirst() then begin
             repeat
-                DimensionSetEntry.Reset();
-                DimensionSetEntry.SetRange("Dimension Set ID", PurchaseInvLine11."Dimension Set ID");
-                DimensionSetEntry.SetRange("Dimension Code", 'CARGO TYPE');
-                DimensionSetEntry.SetRange("Dimension Value Code", 'CONTAINER');
-                if DimensionSetEntry.FindSet() then begin
-                    StorageSum += PurchaseInvLine11."Unit Cost";
-                end;
+                StorageSum += PurchaseInvLine11."Unit Cost";
             until PurchaseInvLine11.Next() = 0;
         end;
 
@@ -423,13 +414,7 @@ report 50051 "KPA Payment CRInvoice report"
         PurchaseInvLine12.SetRange("Item Category Code", 'REEFER');
         if PurchaseInvLine12.FindFirst() then begin
             repeat
-                DimensionSetEntry.Reset();
-                DimensionSetEntry.SetRange("Dimension Set ID", PurchaseInvLine12."Dimension Set ID");
-                DimensionSetEntry.SetRange("Dimension Code", 'CARGO TYPE');
-                DimensionSetEntry.SetRange("Dimension Value Code", 'CONTAINER');
-                if DimensionSetEntry.FindSet() then begin
-                    ReeferCahrgesSum += PurchaseInvLine12."Unit Cost";
-                end;
+                ReeferCahrgesSum += PurchaseInvLine12."Unit Cost";
             until PurchaseInvLine12.Next() = 0;
         end;
 
@@ -438,17 +423,17 @@ report 50051 "KPA Payment CRInvoice report"
         PurchaseInvLine13.Reset();
         PurchaseInvLine13.SetRange("Document No.", "Purch. Inv. Header"."No.");
         PurchaseInvLine13.SetRange("Posting Date", "Purch. Inv. Header"."Posting Date");
-        PurchaseInvLine13.SetRange("Item Category Code", 'IMCO');
+        //PurchaseInvLine13.SetRange("Item Category Code", 'IMCO');
+        PurchaseInvLine13.CalcFields("IMS Item Category Code");
+        if PurchaseInvLine13."Item Category Code" <> '' then
+            PurchaseInvLine13.SetRange("Item Category Code", IMSSetup."Category Code for IMCO")
+        else begin
+            PurchaseInvLine13.SetRange("IMS Item Category Code", IMSSetup."Category Code for IMCO")
+        end;
         if PurchaseInvLine13.FindFirst() then begin
             IMCOChargesSum := 0;
             repeat
-                DimensionSetEntry.Reset();
-                DimensionSetEntry.SetRange("Dimension Set ID", PurchaseInvLine13."Dimension Set ID");
-                DimensionSetEntry.SetRange("Dimension Code", 'CARGO TYPE');
-                DimensionSetEntry.SetRange("Dimension Value Code", 'CONTAINER');
-                if DimensionSetEntry.FindSet() then begin
-                    IMCOChargesSum += PurchaseInvLine13."Unit Cost";
-                end;
+                IMCOChargesSum += PurchaseInvLine13."Unit Cost";
             until PurchaseInvLine13.Next() = 0;
         end;
         //Toll Charges Calculation
@@ -456,17 +441,16 @@ report 50051 "KPA Payment CRInvoice report"
         PurchaseInvLine14.Reset();
         PurchaseInvLine14.SetRange("Document No.", "Purch. Inv. Header"."No.");
         PurchaseInvLine14.SetRange("Posting Date", "Purch. Inv. Header"."Posting Date");
-        PurchaseInvLine14.SetRange("No.", 'I0045');
+        PurchaseInvLine14.CalcFields("IMS Item Category Code");
+        if PurchaseInvLine14."Item Category Code" <> '' then
+            PurchaseInvLine14.SetRange("Item Category Code", IMSSetup."Category Code for TOLL")
+        else begin
+            PurchaseInvLine14.SetRange("IMS Item Category Code", IMSSetup."Category Code for TOLL")
+        end;
         if PurchaseInvLine14.FindFirst() then begin
             TollChargesSum := 0;
             repeat
-                DimensionSetEntry.Reset();
-                DimensionSetEntry.SetRange("Dimension Set ID", PurchaseInvLine14."Dimension Set ID");
-                DimensionSetEntry.SetRange("Dimension Code", 'CARGO TYPE');
-                DimensionSetEntry.SetRange("Dimension Value Code", 'CONTAINER');
-                if DimensionSetEntry.FindSet() then begin
-                    TollChargesSum += PurchaseInvLine14."Unit Cost";
-                end;
+                TollChargesSum += PurchaseInvLine14."Unit Cost";
             until PurchaseInvLine14.Next() = 0;
         end;
         //Toll charges end
@@ -475,18 +459,18 @@ report 50051 "KPA Payment CRInvoice report"
         PurchaseInvLine15.Reset();
         PurchaseInvLine15.SetRange("Document No.", "Purch. Inv. Header"."No.");
         PurchaseInvLine15.SetRange("Posting Date", "Purch. Inv. Header"."Posting Date");
-        PurchaseInvLine15.SetRange("Item Category Code", 'IMCO MSA TOLL');
-        if PurchaseInvLine14.FindFirst() then begin
+        // PurchaseInvLine15.SetRange("Item Category Code", 'IMCO MSA TOLL');
+        PurchaseInvLine15.CalcFields("IMS Item Category Code");
+        if PurchaseInvLine15."Item Category Code" <> '' then
+            PurchaseInvLine15.SetRange("Item Category Code", IMSSetup."Category Code forIMCO MSA TOLL")
+        else begin
+            PurchaseInvLine15.SetRange("IMS Item Category Code", IMSSetup."Category Code forIMCO MSA TOLL")
+        end;
+        if PurchaseInvLine15.FindFirst() then begin
             ImcoTollChargesSum := 0;
             repeat
-                DimensionSetEntry.Reset();
-                DimensionSetEntry.SetRange("Dimension Set ID", PurchaseInvLine15."Dimension Set ID");
-                DimensionSetEntry.SetRange("Dimension Code", 'CARGO TYPE');
-                DimensionSetEntry.SetRange("Dimension Value Code", 'CONTAINER');
-                if DimensionSetEntry.FindSet() then begin
-                    ImcoTollChargesSum += PurchaseInvLine14."Unit Cost";
-                end;
-            until PurchaseInvLine14.Next() = 0;
+                ImcoTollChargesSum += PurchaseInvLine15."Unit Cost";
+            until PurchaseInvLine15.Next() = 0;
         end;
         //IMCO Toll charges end
 
@@ -506,7 +490,7 @@ report 50051 "KPA Payment CRInvoice report"
     local procedure ProcessCreditMemoRecord()
     begin
         //ClearVars();
-
+        IMSSetup.Get();
         // Exchange Rate and Amount Calculations for Credit Memo
         Clear(RateExh);
         Clear(AmountKSH);
@@ -590,12 +574,13 @@ report 50051 "KPA Payment CRInvoice report"
             until PurchaseCrMemoLine2.Next() = 0;
         end;
 
+
         // CFShandling 20FT Calculation
         Clear(CFShandlingCharges20FT);
         PurchaseCrMemoLine3.Reset();
         PurchaseCrMemoLine3.SetRange("Document No.", "Purch. Cr. Memo Hdr."."No.");
         PurchaseCrMemoLine3.SetRange("Posting Date", "Purch. Cr. Memo Hdr."."Posting Date");
-        PurchaseCrMemoLine3.SetRange("Item Category Code", 'SHOREHANDLING');
+        PurchaseCrMemoLine3.SetRange("Item Category Code", IMSSetup."Category Code for CFS Handling");
         if PurchaseCrMemoLine3.FindFirst() then begin
             repeat
                 DimensionSetEntry.Reset();
@@ -608,30 +593,14 @@ report 50051 "KPA Payment CRInvoice report"
             until PurchaseCrMemoLine3.Next() = 0;
         end;
 
-        // Wharfage 20FT Calculation
-        Clear(Wharfage20Ft);
-        PurchaseCrMemoLine5.Reset();
-        PurchaseCrMemoLine5.SetRange("Document No.", "Purch. Cr. Memo Hdr."."No.");
-        PurchaseCrMemoLine5.SetRange("Posting Date", "Purch. Cr. Memo Hdr."."Posting Date");
-        PurchaseCrMemoLine5.SetRange("Item Category Code", 'WHARFAGE');
-        if PurchaseCrMemoLine5.FindFirst() then begin
-            repeat
-                DimensionSetEntry.Reset();
-                DimensionSetEntry.SetRange("Dimension Set ID", PurchaseCrMemoLine5."Dimension Set ID");
-                DimensionSetEntry.SetRange("Dimension Code", 'CONTAINER SIZE');
-                DimensionSetEntry.SetRange("Dimension Value Code", '20FT');
-                if DimensionSetEntry.FindSet() then begin
-                    Wharfage20Ft += PurchaseCrMemoLine5."Unit Cost";
-                end;
-            until PurchaseCrMemoLine5.Next() = 0;
-        end;
+
 
         // CFShandling 40FT Calculation
         Clear(CFShandlingCharges40FT);
         PurchaseCrMemoLine4.Reset();
         PurchaseCrMemoLine4.SetRange("Document No.", "Purch. Cr. Memo Hdr."."No.");
         PurchaseCrMemoLine4.SetRange("Posting Date", "Purch. Cr. Memo Hdr."."Posting Date");
-        PurchaseCrMemoLine4.SetRange("Item Category Code", 'SHOREHANDLING');
+        PurchaseCrMemoLine4.SetRange("Item Category Code", IMSSetup."Category for Shorehandling");
         if PurchaseCrMemoLine4.FindFirst() then begin
             repeat
                 DimensionSetEntry.Reset();
@@ -644,12 +613,42 @@ report 50051 "KPA Payment CRInvoice report"
             until PurchaseCrMemoLine4.Next() = 0;
         end;
 
+        // Wharfage 20FT Calculation
+        Clear(Wharfage20Ft);
+        PurchaseCrMemoLine5.Reset();
+        PurchaseCrMemoLine5.SetRange("Document No.", "Purch. Cr. Memo Hdr."."No.");
+        PurchaseCrMemoLine5.SetRange("Posting Date", "Purch. Cr. Memo Hdr."."Posting Date");
+        //  PurchaseCrMemoLine5.SetRange("Item Category Code", IMSSetup."Category Code Wharfage");
+        PurchaseCrMemoLine5.CalcFields("IMS Item Category Code");
+        if PurchaseCrMemoLine5."Item Category Code" <> '' then
+            PurchaseCrMemoLine5.SetRange("Item Category Code", IMSSetup."Category Code Wharfage")
+        else begin
+            PurchaseCrMemoLine5.SetRange("IMS Item Category Code", IMSSetup."Category Code Wharfage")
+        end;
+        if PurchaseCrMemoLine5.FindFirst() then begin
+            repeat
+                DimensionSetEntry.Reset();
+                DimensionSetEntry.SetRange("Dimension Set ID", PurchaseCrMemoLine5."Dimension Set ID");
+                DimensionSetEntry.SetRange("Dimension Code", 'CONTAINER SIZE');
+                DimensionSetEntry.SetRange("Dimension Value Code", '20FT');
+                if DimensionSetEntry.FindSet() then begin
+                    Wharfage20Ft += PurchaseCrMemoLine5."Unit Cost";
+                end;
+            until PurchaseCrMemoLine5.Next() = 0;
+        end;
+
         // Wharfage 40FT Calculation
         Clear(Wharfage40Ft);
         PurchaseCrMemoLine6.Reset();
         PurchaseCrMemoLine6.SetRange("Document No.", "Purch. Cr. Memo Hdr."."No.");
         PurchaseCrMemoLine6.SetRange("Posting Date", "Purch. Cr. Memo Hdr."."Posting Date");
-        PurchaseCrMemoLine6.SetRange("Item Category Code", 'WHARFAGE');
+        // PurchaseCrMemoLine6.SetRange("Item Category Code", 'WHARFAGE');
+        PurchaseCrMemoLine6.CalcFields("IMS Item Category Code");
+        if PurchaseCrMemoLine6."Item Category Code" <> '' then
+            PurchaseCrMemoLine6.SetRange("Item Category Code", IMSSetup."Category Code Wharfage")
+        else begin
+            PurchaseCrMemoLine6.SetRange("IMS Item Category Code", IMSSetup."Category Code Wharfage")
+        end;
         if PurchaseCrMemoLine6.FindFirst() then begin
             repeat
                 DimensionSetEntry.Reset();
@@ -684,16 +683,16 @@ report 50051 "KPA Payment CRInvoice report"
         PurchaseCrMemoLine8.Reset();
         PurchaseCrMemoLine8.SetRange("Document No.", "Purch. Cr. Memo Hdr."."No.");
         PurchaseCrMemoLine8.SetRange("Posting Date", "Purch. Cr. Memo Hdr."."Posting Date");
-        PurchaseCrMemoLine8.SetRange("Item Category Code", 'SHOREHANDLING');
+        PurchaseCrMemoLine8.SetRange("Item Category Code", IMSSetup."Category for Shorehandling");
         if PurchaseCrMemoLine8.FindFirst() then begin
             repeat
-                DimensionSetEntry.Reset();
-                DimensionSetEntry.SetRange("Dimension Set ID", PurchaseCrMemoLine8."Dimension Set ID");
-                DimensionSetEntry.SetRange("Dimension Code", 'CARGO TYPE');
-                DimensionSetEntry.SetRange("Dimension Value Code", 'CONTAINER');
-                if DimensionSetEntry.FindSet() then begin
-                    ShorehandlingSum += PurchaseCrMemoLine8."Unit Cost";
-                end;
+                // DimensionSetEntry.Reset();
+                // DimensionSetEntry.SetRange("Dimension Set ID", PurchaseCrMemoLine8."Dimension Set ID");
+                // DimensionSetEntry.SetRange("Dimension Code", 'CARGO TYPE');
+                // DimensionSetEntry.SetRange("Dimension Value Code", 'CONTAINER');
+                // if DimensionSetEntry.FindSet() then begin
+                ShorehandlingSum += PurchaseCrMemoLine8."Unit Cost";
+            // end;
             until PurchaseCrMemoLine8.Next() = 0;
         end;
 
@@ -702,16 +701,22 @@ report 50051 "KPA Payment CRInvoice report"
         PurchaseCrMemoLine9.Reset();
         PurchaseCrMemoLine9.SetRange("Document No.", "Purch. Cr. Memo Hdr."."No.");
         PurchaseCrMemoLine9.SetRange("Posting Date", "Purch. Cr. Memo Hdr."."Posting Date");
-        PurchaseCrMemoLine9.SetRange("Item Category Code", 'WHARFAGE');
+        //PurchaseCrMemoLine9.SetRange("Item Category Code", IMSSetup."Category Code Wharfage");
+        PurchaseCrMemoLine9.CalcFields("IMS Item Category Code");
+        if PurchaseCrMemoLine9."Item Category Code" <> '' then
+            PurchaseCrMemoLine9.SetRange("Item Category Code", IMSSetup."Category Code Wharfage")
+        else begin
+            PurchaseCrMemoLine9.SetRange("IMS Item Category Code", IMSSetup."Category Code Wharfage")
+        end;
         if PurchaseCrMemoLine9.FindFirst() then begin
             repeat
-                DimensionSetEntry.Reset();
-                DimensionSetEntry.SetRange("Dimension Set ID", PurchaseCrMemoLine9."Dimension Set ID");
-                DimensionSetEntry.SetRange("Dimension Code", 'CARGO TYPE');
-                DimensionSetEntry.SetRange("Dimension Value Code", 'CONTAINER');
-                if DimensionSetEntry.FindSet() then begin
-                    wharfageSum += PurchaseCrMemoLine9."Unit Cost";
-                end;
+                // DimensionSetEntry.Reset();
+                // DimensionSetEntry.SetRange("Dimension Set ID", PurchaseCrMemoLine9."Dimension Set ID");
+                // DimensionSetEntry.SetRange("Dimension Code", 'CARGO TYPE');
+                // DimensionSetEntry.SetRange("Dimension Value Code", 'CONTAINER');
+                // if DimensionSetEntry.FindSet() then begin
+                wharfageSum += PurchaseCrMemoLine9."Unit Cost";
+            // end;
             until PurchaseCrMemoLine9.Next() = 0;
         end;
 
@@ -723,13 +728,13 @@ report 50051 "KPA Payment CRInvoice report"
         PurchaseCrMemoLine10.SetRange("Item Category Code", 'REMARSHALLING');
         if PurchaseCrMemoLine10.FindFirst() then begin
             repeat
-                DimensionSetEntry.Reset();
-                DimensionSetEntry.SetRange("Dimension Set ID", PurchaseCrMemoLine10."Dimension Set ID");
-                DimensionSetEntry.SetRange("Dimension Code", 'CARGO TYPE');
-                DimensionSetEntry.SetRange("Dimension Value Code", 'CONTAINER');
-                if DimensionSetEntry.FindSet() then begin
-                    RemarshallingSum += PurchaseCrMemoLine10."Unit Cost";
-                end;
+                // DimensionSetEntry.Reset();
+                // DimensionSetEntry.SetRange("Dimension Set ID", PurchaseCrMemoLine10."Dimension Set ID");
+                // DimensionSetEntry.SetRange("Dimension Code", 'CARGO TYPE');
+                // DimensionSetEntry.SetRange("Dimension Value Code", 'CONTAINER');
+                // if DimensionSetEntry.FindSet() then begin
+                RemarshallingSum += PurchaseCrMemoLine10."Unit Cost";
+            //end;
             until PurchaseCrMemoLine10.Next() = 0;
         end;
 
@@ -738,16 +743,16 @@ report 50051 "KPA Payment CRInvoice report"
         PurchaseCrMemoLine11.Reset();
         PurchaseCrMemoLine11.SetRange("Document No.", "Purch. Cr. Memo Hdr."."No.");
         PurchaseCrMemoLine11.SetRange("Posting Date", "Purch. Cr. Memo Hdr."."Posting Date");
-        PurchaseCrMemoLine11.SetRange("Item Category Code", 'STORAGE');
+        PurchaseCrMemoLine11.SetRange("Item Category Code", IMSSetup."Category Code for Storage");
         if PurchaseCrMemoLine11.FindFirst() then begin
             repeat
-                DimensionSetEntry.Reset();
-                DimensionSetEntry.SetRange("Dimension Set ID", PurchaseCrMemoLine11."Dimension Set ID");
-                DimensionSetEntry.SetRange("Dimension Code", 'CARGO TYPE');
-                DimensionSetEntry.SetRange("Dimension Value Code", 'CONTAINER');
-                if DimensionSetEntry.FindSet() then begin
-                    StorageSum += PurchaseCrMemoLine11."Unit Cost";
-                end;
+                // DimensionSetEntry.Reset();
+                // DimensionSetEntry.SetRange("Dimension Set ID", PurchaseCrMemoLine11."Dimension Set ID");
+                // DimensionSetEntry.SetRange("Dimension Code", 'CARGO TYPE');
+                // DimensionSetEntry.SetRange("Dimension Value Code", 'CONTAINER');
+                // if DimensionSetEntry.FindSet() then begin
+                StorageSum += PurchaseCrMemoLine11."Unit Cost";
+            //  end;
             until PurchaseCrMemoLine11.Next() = 0;
         end;
 
@@ -759,13 +764,13 @@ report 50051 "KPA Payment CRInvoice report"
         PurchaseCrMemoLine12.SetRange("Item Category Code", 'REEFER');
         if PurchaseCrMemoLine12.FindFirst() then begin
             repeat
-                DimensionSetEntry.Reset();
-                DimensionSetEntry.SetRange("Dimension Set ID", PurchaseCrMemoLine12."Dimension Set ID");
-                DimensionSetEntry.SetRange("Dimension Code", 'CARGO TYPE');
-                DimensionSetEntry.SetRange("Dimension Value Code", 'CONTAINER');
-                if DimensionSetEntry.FindSet() then begin
-                    ReeferCahrgesSum += PurchaseCrMemoLine12."Unit Cost";
-                end;
+                // DimensionSetEntry.Reset();
+                // DimensionSetEntry.SetRange("Dimension Set ID", PurchaseCrMemoLine12."Dimension Set ID");
+                // DimensionSetEntry.SetRange("Dimension Code", 'CARGO TYPE');
+                // DimensionSetEntry.SetRange("Dimension Value Code", 'CONTAINER');
+                //  if DimensionSetEntry.FindSet() then begin
+                ReeferCahrgesSum += PurchaseCrMemoLine12."Unit Cost";
+            // end;
             until PurchaseCrMemoLine12.Next() = 0;
         end;
 
@@ -774,52 +779,57 @@ report 50051 "KPA Payment CRInvoice report"
         PurchaseCrMemoLine13.Reset();
         PurchaseCrMemoLine13.SetRange("Document No.", "Purch. Cr. Memo Hdr."."No.");
         PurchaseCrMemoLine13.SetRange("Posting Date", "Purch. Cr. Memo Hdr."."Posting Date");
-        PurchaseCrMemoLine13.SetRange("Item Category Code", 'IMCO');
+        PurchaseCrMemoLine13.SetRange("Item Category Code", IMSSetup."Category Code for IMCO");
+        PurchaseCrMemoLine13.CalcFields("IMS Item Category Code");
+        if PurchaseCrMemoLine13."Item Category Code" <> '' then
+            PurchaseCrMemoLine13.SetRange("Item Category Code", IMSSetup."Category Code for IMCO")
+        else begin
+            PurchaseCrMemoLine13.SetRange("IMS Item Category Code", IMSSetup."Category Code for IMCO")
+        end;
         if PurchaseCrMemoLine13.FindFirst() then begin
             IMCOChargesSum := 0;
             repeat
-                DimensionSetEntry.Reset();
-                DimensionSetEntry.SetRange("Dimension Set ID", PurchaseCrMemoLine13."Dimension Set ID");
-                DimensionSetEntry.SetRange("Dimension Code", 'CARGO TYPE');
-                DimensionSetEntry.SetRange("Dimension Value Code", 'CONTAINER');
-                if DimensionSetEntry.FindSet() then begin
-                    IMCOChargesSum += PurchaseCrMemoLine13."Unit Cost";
-                end;
+                IMCOChargesSum += PurchaseCrMemoLine13."Unit Cost";
+            //end;
             until PurchaseCrMemoLine13.Next() = 0;
         end;
+        //TOLL Charges Calculation
         Clear(TollChargesSum);
         PurchaseCrMemoLine14.Reset();
         PurchaseCrMemoLine14.SetRange("Document No.", "Purch. Cr. Memo Hdr."."No.");
         PurchaseCrMemoLine14.SetRange("Posting Date", "Purch. Cr. Memo Hdr."."Posting Date");
-        PurchaseCrMemoLine14.SetRange("No.", 'I0045');
+        PurchaseCrMemoLine14.CalcFields("IMS Item Category Code");
+        if PurchaseCrMemoLine14."Item Category Code" <> '' then
+            PurchaseCrMemoLine14.SetRange("Item Category Code", IMSSetup."Category Code for TOLL")
+        else begin
+            PurchaseCrMemoLine14.SetRange("IMS Item Category Code", IMSSetup."Category Code for TOLL")
+        end;
         if PurchaseCrMemoLine14.FindFirst() then begin
             TollChargesSum := 0;
             repeat
-                DimensionSetEntry.Reset();
-                DimensionSetEntry.SetRange("Dimension Set ID", PurchaseCrMemoLine14."Dimension Set ID");
-                DimensionSetEntry.SetRange("Dimension Code", 'CARGO TYPE');
-                DimensionSetEntry.SetRange("Dimension Value Code", 'CONTAINER');
-                if DimensionSetEntry.FindSet() then begin
-                    TollChargesSum += PurchaseCrMemoLine14."Unit Cost";
-                end;
+                TollChargesSum += PurchaseCrMemoLine14."Unit Cost";
+            // end;
             until PurchaseCrMemoLine14.Next() = 0;
         end;
+        //TOLL charges end
+
         //Imco Toll Charges Calculation
         Clear(ImcoTollChargesSum);
         PurchaseCrMemoLine15.Reset();
         PurchaseCrMemoLine15.SetRange("Document No.", "Purch. Cr. Memo Hdr."."No.");
         PurchaseCrMemoLine15.SetRange("Posting Date", "Purch. Cr. Memo Hdr."."Posting Date");
-        PurchaseCrMemoLine15.SetRange("Item Category Code", 'IMCO MSA TOLL');
+        // PurchaseCrMemoLine15.SetRange("Item Category Code", 'IMCO MSA TOLL');
+        PurchaseCrMemoLine5.CalcFields("IMS Item Category Code");
+        if PurchaseCrMemoLine5."Item Category Code" <> '' then
+            PurchaseCrMemoLine5.SetRange("Item Category Code", IMSSetup."Category Code forIMCO MSA TOLL")
+        else begin
+            PurchaseCrMemoLine5.SetRange("IMS Item Category Code", IMSSetup."Category Code forIMCO MSA TOLL")
+        end;
         if PurchaseCrMemoLine15.FindFirst() then begin
             ImcoTollChargesSum := 0;
             repeat
-                DimensionSetEntry.Reset();
-                DimensionSetEntry.SetRange("Dimension Set ID", PurchaseCrMemoLine15."Dimension Set ID");
-                DimensionSetEntry.SetRange("Dimension Code", 'CARGO TYPE');
-                DimensionSetEntry.SetRange("Dimension Value Code", 'CONTAINER');
-                if DimensionSetEntry.FindSet() then begin
-                    ImcoTollChargesSum += PurchaseCrMemoLine15."Unit Cost";
-                end;
+                ImcoTollChargesSum += PurchaseCrMemoLine15."Unit Cost";
+            //end;
             until PurchaseCrMemoLine15.Next() = 0;
         end;
         //Imco Toll Charges Calculation End
@@ -901,6 +911,7 @@ report 50051 "KPA Payment CRInvoice report"
         TempExcelBuffer.AddColumn('Reefer charges-USD', false, '', true, false, false, '', TempExcelBuffer."Cell Type"::Text);
         TempExcelBuffer.AddColumn('IMCO Charge-USD', false, '', true, false, false, '', TempExcelBuffer."Cell Type"::Text);
         TempExcelBuffer.AddColumn('TollCharge-USD', false, '', true, false, false, '', TempExcelBuffer."Cell Type"::Text);
+        TempExcelBuffer.AddColumn('IMCO TollCharge-USD', false, '', true, false, false, '', TempExcelBuffer."Cell Type"::Text);
         TempExcelBuffer.AddColumn('Shore handling Charges-KSH', false, '', true, false, false, '', TempExcelBuffer."Cell Type"::Text);
         TempExcelBuffer.AddColumn('Wharfage Charges-KSH', false, '', true, false, false, '', TempExcelBuffer."Cell Type"::Text);
         TempExcelBuffer.AddColumn('Re-Marshalling Charges-KSH', false, '', true, false, false, '', TempExcelBuffer."Cell Type"::Text);
@@ -908,6 +919,7 @@ report 50051 "KPA Payment CRInvoice report"
         TempExcelBuffer.AddColumn('Reefer charges-KSH', false, '', true, false, false, '', TempExcelBuffer."Cell Type"::Text);
         TempExcelBuffer.AddColumn('IMCO Charge-KSH', false, '', true, false, false, '', TempExcelBuffer."Cell Type"::Text);
         TempExcelBuffer.AddColumn('TollCharge-KSH', false, '', true, false, false, '', TempExcelBuffer."Cell Type"::Text);
+        TempExcelBuffer.AddColumn('IMCO TollCharge-KSH', false, '', true, false, false, '', TempExcelBuffer."Cell Type"::Text);
         TempExcelBuffer.AddColumn('VAT', false, '', true, false, false, '', TempExcelBuffer."Cell Type"::Text);
         TempExcelBuffer.AddColumn('WHT VAT', false, '', true, false, false, '', TempExcelBuffer."Cell Type"::Text);
         TempExcelBuffer.AddColumn('VAT KSH', false, '', true, false, false, '', TempExcelBuffer."Cell Type"::Text);
@@ -944,6 +956,7 @@ report 50051 "KPA Payment CRInvoice report"
         TempExcelBuffer.AddColumn(ReeferCahrgesSum, false, '', false, false, false, '', TempExcelBuffer."Cell Type"::Number);
         TempExcelBuffer.AddColumn(IMCOChargesSum, false, '', false, false, false, '', TempExcelBuffer."Cell Type"::Number);
         TempExcelBuffer.AddColumn(TollChargesSum, false, '', false, false, false, '', TempExcelBuffer."Cell Type"::Number);
+        TempExcelBuffer.AddColumn(ImcoTollChargesSum, false, '', false, false, false, '', TempExcelBuffer."Cell Type"::Number);
         TempExcelBuffer.AddColumn(ShorehandlingSum * RateExh, false, '', false, false, false, '', TempExcelBuffer."Cell Type"::Number);
         TempExcelBuffer.AddColumn(wharfageSum * RateExh, false, '', false, false, false, '', TempExcelBuffer."Cell Type"::Number);
         TempExcelBuffer.AddColumn(RemarshallingSum * RateExh, false, '', false, false, false, '', TempExcelBuffer."Cell Type"::Number);
@@ -951,6 +964,7 @@ report 50051 "KPA Payment CRInvoice report"
         TempExcelBuffer.AddColumn(ReeferCahrgesSum * RateExh, false, '', false, false, false, '', TempExcelBuffer."Cell Type"::Number);
         TempExcelBuffer.AddColumn(IMCOChargesSum * RateExh, false, '', false, false, false, '', TempExcelBuffer."Cell Type"::Number);
         TempExcelBuffer.AddColumn(TollChargesSum * RateExh, false, '', false, false, false, '', TempExcelBuffer."Cell Type"::Number);
+        TempExcelBuffer.AddColumn(ImcoTollChargesSum * RateExh, false, '', false, false, false, '', TempExcelBuffer."Cell Type"::Number);
         TempExcelBuffer.AddColumn(VATUSD, false, '', false, false, false, '', TempExcelBuffer."Cell Type"::Number);
         TempExcelBuffer.AddColumn(WithVAT, false, '', false, false, false, '', TempExcelBuffer."Cell Type"::Number);
         TempExcelBuffer.AddColumn(VATKSH, false, '', false, false, false, '', TempExcelBuffer."Cell Type"::Number);
@@ -987,6 +1001,7 @@ report 50051 "KPA Payment CRInvoice report"
         TempExcelBuffer.AddColumn(ReeferCahrgesSum, false, '', false, false, false, '', TempExcelBuffer."Cell Type"::Number);
         TempExcelBuffer.AddColumn(IMCOChargesSum, false, '', false, false, false, '', TempExcelBuffer."Cell Type"::Number);
         TempExcelBuffer.AddColumn(TollChargesSum, false, '', false, false, false, '', TempExcelBuffer."Cell Type"::Number);
+        TempExcelBuffer.AddColumn(ImcoTollChargesSum, false, '', false, false, false, '', TempExcelBuffer."Cell Type"::Number);
         TempExcelBuffer.AddColumn(ShorehandlingSum * RateExh, false, '', false, false, false, '', TempExcelBuffer."Cell Type"::Number);
         TempExcelBuffer.AddColumn(wharfageSum * RateExh, false, '', false, false, false, '', TempExcelBuffer."Cell Type"::Number);
         TempExcelBuffer.AddColumn(RemarshallingSum * RateExh, false, '', false, false, false, '', TempExcelBuffer."Cell Type"::Number);
@@ -994,6 +1009,7 @@ report 50051 "KPA Payment CRInvoice report"
         TempExcelBuffer.AddColumn(ReeferCahrgesSum * RateExh, false, '', false, false, false, '', TempExcelBuffer."Cell Type"::Number);
         TempExcelBuffer.AddColumn(IMCOChargesSum * RateExh, false, '', false, false, false, '', TempExcelBuffer."Cell Type"::Number);
         TempExcelBuffer.AddColumn(TollChargesSum * RateExh, false, '', false, false, false, '', TempExcelBuffer."Cell Type"::Number);
+        TempExcelBuffer.AddColumn(ImcoTollChargesSum * RateExh, false, '', false, false, false, '', TempExcelBuffer."Cell Type"::Number);
         TempExcelBuffer.AddColumn(VATUSD, false, '', false, false, false, '', TempExcelBuffer."Cell Type"::Number);
         TempExcelBuffer.AddColumn(WithVAT, false, '', false, false, false, '', TempExcelBuffer."Cell Type"::Number);
         TempExcelBuffer.AddColumn(VATKSH, false, '', false, false, false, '', TempExcelBuffer."Cell Type"::Number);
