@@ -126,7 +126,7 @@ page 50105 ContainerListForProforma
         PurchCrLine: Record "Purch. Cr. Memo Line";
         PostedSalesInvLine: Record "Sales Invoice Line";
         BeforeReceivedStorageDays, LineNo2, LineNo1, StorageDays, EntryNo : Integer;
-        StorageStartDate, AfterBaseOnDate : Date;
+        StorageStartDate, AfterBaseOnDate, ReleaseDate : Date;
         ReeferInvoicedChargeAmount, InvoicedChargeAmount, RemainingChargeAmount, ChargeAmount, CRChargedAmount : Decimal;
         ChargedReeferStorageHours, ReeferStorageHours : Decimal;
         ChargedStorageDays, InvChargableStorageDays, ChargableStorageDays, CRChargedStorageDays : Integer;
@@ -161,6 +161,7 @@ page 50105 ContainerListForProforma
                     TempManifestLine.INSERT;
                     TempManifestLine.Modify();
                 until ManifestLine.NEXT = 0;
+
             Salesline.Reset();
             Salesline.SetRange("Document Type", Salesline."Document Type"::Order);
             Salesline.SetRange("Document No.", SalesOrderNo);
@@ -493,6 +494,7 @@ page 50105 ContainerListForProforma
                                     StorageStartDate := TempManifestLine."Last Sling Date";
                                 IF ChargeGroupHead."Base On" = ChargeGroupHead."Base On"::ActualDate then
                                     StorageStartDate := TempManifestLine."Vessel Arrival Date";
+                                ReleaseDate := TempManifestLine."Date Released";
                                 //end;
                                 IF StorageStartDate <> 0D then begin
                                     IF ChargeGroupHead."Start After" > 1 then
@@ -507,7 +509,10 @@ page 50105 ContainerListForProforma
                                 IF SalesHead.FindFirst() then
                                     SOPostingDate := SalesHead."Posting Date";
                                 if AfterBaseOnDate <> 0D then
-                                    BeforeReceivedStorageDays := SOPostingDate - AfterBaseOnDate;
+                                    if TempManifestLine."Shortcut Dimension 6 Code" = 'EMPTY CONTAINER' then
+                                        BeforeReceivedStorageDays := ReleaseDate - AfterBaseOnDate
+                                    else
+                                        BeforeReceivedStorageDays := SOPostingDate - AfterBaseOnDate;
 
                                 if ChargeGroupHead."Include Received Day" then
                                     StorageDays := BeforeReceivedStorageDays + 1
@@ -1387,6 +1392,7 @@ page 50105 ContainerListForProforma
     var
         ChargeIDAssRec: Record "Charge ID Assignment";
     begin
+
         ChargeIDAssRec.reset();
         ChargeIDAssRec.SetRange("Customer No.", NewCustNo);
         ChargeIDAssRec.SetRange("Global Dimension 2 Code", MFL."Global Dimension 2 Code");
@@ -1395,6 +1401,10 @@ page 50105 ContainerListForProforma
         ChargeIDAssRec.SetRange(ChargeIDAssRec."Clearing Agent Code", MFL."Clearing Agent");
         ChargeIDAssRec.SetRange("Destination Local or Transit", MFL."Destination Type");
         ChargeIDAssRec.SetFilter("Effective From Date", '<=%1', MFL."Date Received");
+        if MFL."Shortcut Dimension 6 Code" <> 'EMPTY CONTAINER' then
+            ChargeIDAssRec.SetRange("Empty Container Charge", false)
+        else
+            ChargeIDAssRec.SetRange("Empty Container Charge", True);
         ChargeIDAssRec.SetFilter("Effective To Date", '>=%1', MFL."Date Received");
         IF ChargeIDAssRec.FindFirst() then begin
             ChargeIDAssRec.CalcFields(Status);

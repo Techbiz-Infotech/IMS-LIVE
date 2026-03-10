@@ -12,7 +12,7 @@ page 50160 "Charge ID Assignment"
         {
             repeater(General)
             {
-                field("Customer Name";Rec."Customer Name")
+                field("Customer Name"; Rec."Customer Name")
                 {
                     ToolTip = 'Specifies the value of the Customer Name field.';
                     ApplicationArea = All;
@@ -118,6 +118,11 @@ page 50160 "Charge ID Assignment"
                             Error('Combination with same clearing agent is already exist. / Please check and enter Clearing agent again.!');
                         //SH
                     end;
+                }
+                field("Empty Container Charge"; Rec."Empty Container Charge")
+                {
+                    Caption = 'Empty Container Charge';
+                    ApplicationArea = All;
                 }
                 field(Status; Rec.Status)
                 {

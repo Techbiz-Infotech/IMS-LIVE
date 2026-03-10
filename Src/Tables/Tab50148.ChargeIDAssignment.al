@@ -162,6 +162,11 @@ table 50148 "Charge ID Assignment"
             DataClassification = ToBeClassified;
             TableRelation = User."User Name";
         }
+        field(44; "Empty Container Charge"; Boolean)
+        {
+
+            DataClassification = ToBeClassified;
+        }
     }
     keys
     {
