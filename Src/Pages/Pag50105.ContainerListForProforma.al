@@ -509,7 +509,7 @@ page 50105 ContainerListForProforma
                                 IF SalesHead.FindFirst() then
                                     SOPostingDate := SalesHead."Posting Date";
                                 if AfterBaseOnDate <> 0D then
-                                    if TempManifestLine."Shortcut Dimension 6 Code" = 'EMPTY CONTAINER' then
+                                    if TempManifestLine."Shortcut Dimension 6 Code" = 'EMPTY' then
                                         BeforeReceivedStorageDays := ReleaseDate - AfterBaseOnDate
                                     else
                                         BeforeReceivedStorageDays := SOPostingDate - AfterBaseOnDate;
@@ -1401,7 +1401,7 @@ page 50105 ContainerListForProforma
         ChargeIDAssRec.SetRange(ChargeIDAssRec."Clearing Agent Code", MFL."Clearing Agent");
         ChargeIDAssRec.SetRange("Destination Local or Transit", MFL."Destination Type");
         ChargeIDAssRec.SetFilter("Effective From Date", '<=%1', MFL."Date Received");
-        if MFL."Shortcut Dimension 6 Code" <> 'EMPTY CONTAINER' then
+        if MFL."Shortcut Dimension 6 Code" <> 'EMPTY' then
             ChargeIDAssRec.SetRange("Empty Container Charge", false)
         else
             ChargeIDAssRec.SetRange("Empty Container Charge", True);

@@ -5,7 +5,7 @@ page 50057 "Empty Container Gatepass List"
     Caption = 'Empty Container Gatepass List';
     PageType = List;
     SourceTable = "Gate Pass Out";
-    SourceTableView = sorting("Gate Pass No.") where("Gate Pass Status" = filter(Active), "Shortcut Dimension 6 Code" = filter('EMPTY CONTAINER'));
+    SourceTableView = sorting("Gate Pass No.") where("Gate Pass Status" = filter(Active), "Shortcut Dimension 6 Code" = filter('EMPTY'));
     UsageCategory = Lists;
     CardPageId = "Empty Container Gatepass";
     Editable = false;

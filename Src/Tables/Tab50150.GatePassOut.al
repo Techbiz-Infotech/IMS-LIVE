@@ -411,7 +411,7 @@ table 50150 "Gate Pass Out"
 
         ClosedCont := 0;
         //EmptyContainerManifest.DeleteAll();
-        if rec."Shortcut Dimension 6 Code" = 'EMPTY CONTAINER' Then begin
+        if rec."Shortcut Dimension 6 Code" = 'EMPTY' Then begin
             ManifestLine.Reset();
             ManifestLine.SetRange("Shortcut Dimension 6 Code", Rec."Shortcut Dimension 6 Code");
             ManifestLine.SetRange(Released, False);
@@ -531,11 +531,11 @@ table 50150 "Gate Pass Out"
             Overdue := true;
         if not Overdue then begin
             if Customer.Get(rec."Consignee No.") then begin
-
+                Customer.CalcFields("Balance (LCY)");
                 //if Customer.Get(CustledgEntry."Customer No.") then begin
                 if Customer."Credit Limit (LCY)" > Customer."Balance (LCY)" then begin
-                    Rec.Approved := true;
-                    Rec.Modify();
+                    Rec.Validate(Approved, true);
+                    //Rec.Modify();
                 end;
             end;
         end else begin
