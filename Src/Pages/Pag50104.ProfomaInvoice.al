@@ -920,7 +920,7 @@ page 50104 "proforma Invoice"
 
                     trigger OnAction()
                     begin
-                        if rec."Shortcut Dimension 6 Code" <> 'EMPTY CONTAINER' Then
+                        if rec."Shortcut Dimension 6 Code" <> 'EMPTY' Then
                             CalculateLineCharges()
                         else begin
                             Rec.TestField("Start Date");

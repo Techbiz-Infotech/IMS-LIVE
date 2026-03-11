@@ -255,7 +255,7 @@ page 50058 "Empty Container Gatepass"
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        Rec."Shortcut Dimension 6 Code" := 'EMPTY CONTAINER';
+        Rec."Shortcut Dimension 6 Code" := 'EMPTY';
     end;
 
     trigger OnModifyRecord(): Boolean

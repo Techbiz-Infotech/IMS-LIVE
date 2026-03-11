@@ -1184,7 +1184,7 @@ page 50056 "Manifest lookup"
     begin
 
         If GatePass.get(GPNo) then begin
-            if GatePass."Shortcut Dimension 6 Code" <> 'EMPTY CONTAINER' then begin
+            if GatePass."Shortcut Dimension 6 Code" <> 'EMPTY' then begin
                 // ManifestLine.Reset();
                 // ManifestLine.SetRange("Shortcut Dimension 6 Code", GatePass."Shortcut Dimension 6 Code");
                 // if ManifestLine.FindSet() then begin
